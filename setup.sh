@@ -36,8 +36,8 @@ yum install -y epel-release
 yum install -y --enablerepo=epel
 echo "Installing dependencies."
 sleep 2
-yum groupinstall "development tools" -y
-yum openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt* -y
+yum groupinstall -y "development tools"
+yum openssl-devel -y cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt*
 
 
 ##create the user hifi
