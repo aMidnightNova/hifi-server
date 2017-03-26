@@ -1,49 +1,93 @@
-#!/bin/sh
+#!/bin/bash
 
-#
-# a simple way to parse shell script arguments
-#
-# please edit and use to your hearts content
-#
+function usage() {
+    echo "--save, --install, --update"
+    echo "the process is controlled by systemd to to restart stop etc. use systemctrl restart hifi.service"
 
-
-ENVIRONMENT="dev"
-DB_PATH="/data/db"
-
-function usage()
-{
-    echo "if this was a real script you would see something useful here"
-    echo ""
-    echo "./simple_args_parsing.sh"
-    echo "\t-h --help"
-    echo "\t--environment=$ENVIRONMENT"
-    echo "\t--db-path=$DB_PATH"
-    echo ""
 }
 
-while [ "$1" != "" ]; do
-    PARAM=`echo $1 | awk -F= '{print $1}'`
-    VALUE=`echo $1 | awk -F= '{print $2}'`
-    case $PARAM in
-        -h | --help)
+function doSave() {
+
+
+
+echo "saving..."
+
+
+
+}
+
+
+function getRepo {
+
+git fetch --tags
+
+LATEST=$(git describe --abbrev=0 --tags)
+
+echo "checking out " $LATEST
+sleep 2
+git checkout $LATEST
+
+}
+
+
+BUILDDIR="/opt/hifi/build"
+
+function changeowner  {
+  if [ -d "$BUILDDIR" ]; then
+    chown -R hifi:hifi $BUILDDIR
+  fi
+}
+
+
+
+function getStatus() {
+systemctl status hifi.service
+}
+
+
+function doRestore() {
+
+
+echo $1
+}
+
+if [ "$2" != "" ];
+then
+    echo "Single argument only."
+    exit
+fi
+
+    case $1 in
+        --help)
             usage
             exit
             ;;
-        --env)
-            ENVIRONMENT=$VALUE
+        --save)
+            doSave
             ;;
-        --db-path)
-            DB_PATH=$VALUE
+        --status)
+            echo "status"
+            ;;
+        --update)
+            echo "update"
+            ;;
+        --restore)
+            echo "Listing backup files:"
+
+            for FILE in "/opt/hifi/backups"/*
+            do
+              echo "$FILE"
+            done
+
+            read -p 'File?' CHOSENFILE
+            echo "Using:" $CHOSENFILE
+
+            doRestore $CHOSENFILE
             ;;
         *)
-            echo "ERROR: unknown parameter \"$PARAM\""
+            echo "ERROR: unknown parameter \"$1\""
             usage
             exit 1
             ;;
     esac
     shift
-done
-
-
-echo "ENVIRONMENT is $ENVIRONMENT";
-echo "DB_PATH is $DB_PATH";

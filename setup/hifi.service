@@ -9,7 +9,7 @@ RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=hifi
-#User=hifi
+User=hifi
 #Group=hifi
 Environment=PATH=/usr/bin/:/usr/local/bin/
 Environment=NODE_ENV=production
