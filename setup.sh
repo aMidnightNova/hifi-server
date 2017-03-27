@@ -22,7 +22,7 @@ yum install -y --enablerepo=epel
 
 
 yum groupinstall -y "development tools"
-yum openssl-devel -y cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt*
+yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt*
 
 
 function installHifiServer() {
