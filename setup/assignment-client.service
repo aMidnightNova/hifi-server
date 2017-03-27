@@ -1,6 +1,6 @@
 [Unit]
 Description=Hifi
-After=network.target
+After=network.target domain-server.service
 
 [Service]
 ExecStart=/opt/hifi/live/assignment-client/assignment-client

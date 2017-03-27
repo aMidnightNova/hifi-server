@@ -73,8 +73,13 @@ function installHifi() {
 
 
     setPerms
-    systemctl enable hifi.service
-    systemctl start hifi.service
+    systemctl enable domain-server.service
+    systemctl start domain-server.service
+    systemctl enable assignment-client.service
+    systemctl start assignment-client.service
+
+
+
 }
 
 
