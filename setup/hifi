@@ -28,7 +28,7 @@ function getHelp() {
     echo "--status : give status info on the hifi.service"
     echo "--update : Creates a backup of the current live folder then updates the code."
     echo "--restore : restore code from one of the last backups"
-    echo "the process is controlled by systemd to to restart stop etc. use systemctl <start,stop,restart,status> hifi.service"
+    echo "the process is controlled by systemd to restart stop etc. use systemctl <start,stop,restart,status> hifi.service"
 
 }
 
@@ -43,14 +43,23 @@ function doUpdate() {
 
             git fetch --tags
             LATEST=$(git describe --abbrev=0 --tags)
-            git checkout $LATEST
+            git checkout tags/$LATEST
             cmake3 -B$HIFIBASEDIR/build
 
-            cd -
+            rm -rf $HIFIBASEDIR/build/*
+
             cd $HIFIBASEDIR/build
 
             make domain-server && make assignment-client
-            cd -
+
+            rm -rf $HIFIBASEDIR/live/*
+
+            yes | cp -f $HIFIBASEDIR/source/setup/hifi.service /etc/systemd/system/hifi.service
+            systemctl daemon-reload
+
+            cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
+            yes | cp -f $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
+
             setPerms
             systemctl start hifi.service
         else
@@ -130,8 +139,8 @@ fi
               echo "$FILE"
             done
 
-            read -p 'File?' CHOSENFILE
-            echo "Using:" $CHOSENFILE
+            read -p "File?: " CHOSENFILE
+            echo "Using: " $CHOSENFILE
             sleep 1
             doRestore $CHOSENFILE
             ;;

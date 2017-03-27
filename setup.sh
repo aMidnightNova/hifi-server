@@ -46,22 +46,22 @@ function doInstall() {
     mkdir -p /opt/hifi/backups
     mkdir -p /opt/hifi/logs
 
-    cd $HIFIBASEDIR/source
+    git clone https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
     git fetch --tags
     LATEST=$(git describe --abbrev=0 --tags)
-    git checkout $LATEST
+    git checkout tags/$LATEST
 
     cmake3 -B$HIFIBASEDIR/build -DGET_LIBOVR=1
-    cd -
+
     cd $HIFIBASEDIR/build
 
     make domain-server && make assignment-client
-    cd -
 
 
-    cp $HIFIBASEDIR/build/hifi.service /etc/systemd/system/hifi.service
-    cp $HIFIBASEDIR/build/* $HIFIBASEDIR/live
-    cp $HIFIBASEDIR/build/hifi /usr/local/bin/hifi
+
+    cp $HIFIBASEDIR/source/setup/hifi.service /etc/systemd/system/hifi.service
+    cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
+    cp $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
 
 
     setPerms
@@ -69,5 +69,31 @@ function doInstall() {
     systemctl start hifi.service
 }
 
+
+
+function firewalldSetup() {
+
+yum install firewalld -y
+
+systemctl enable firewalld.service
+systemctl start firewalld.service
+firewall-cmd --permanent --zone=public --add-port=40100/tcp
+firewall-cmd --permanent --zone=public --add-port=40101/tcp
+firewall-cmd --permanent --zone=public --add-port=40102/tcp
+firewall-cmd --permanent --zone=public --add-port=40103/tcp
+firewall-cmd --permanent --zone=public --add-port=40104/tcp
+firewall-cmd --permanent --zone=public --add-port=40105/tcp
+
+firewall-cmd --permanent --zone=public --add-port=40100/udp
+firewall-cmd --permanent --zone=public --add-port=40101/udp
+firewall-cmd --permanent --zone=public --add-port=40102/udp
+firewall-cmd --permanent --zone=public --add-port=40103/udp
+firewall-cmd --permanent --zone=public --add-port=40104/udp
+firewall-cmd --permanent --zone=public --add-port=40105/udp
+systemctl restart firewalld.service
+
+}
+
+firewalldSetup
 
 doInstall
