@@ -3,17 +3,17 @@ Description=Hifi
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node /opt/sl-api/server.js
+ExecStart=/opt/hifi/live/assignment-client
+ExecStart=/opt/hifi/live/domain-server
 Restart=always
 RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=hifi
 User=hifi
-#Group=hifi
+Group=hifi
 Environment=PATH=/usr/bin/:/usr/local/bin/
-Environment=NODE_ENV=production
-WorkingDirectory=/opt/hifi
+WorkingDirectory=/opt/hifi/live
 
 [Install]
 WantedBy=multi-user.target

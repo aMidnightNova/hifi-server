@@ -1,40 +1,82 @@
 #!/bin/bash
 
-function usage() {
-    echo "--save, --install, --update"
-    echo "the process is controlled by systemd to to restart stop etc. use systemctrl restart hifi.service"
+HIFIBASEDIR="/opt/hifi"
+
+
+function doContinue() {
+ANS=""
+
+while [[ ! $ANS =~ ^([yY][eE][sS]|[yY])$ ]]
+	do
+		if [[ $ANS =~ ^([nN][oO]|[nN])$ ]]
+		then
+			return 1
+		else
+			read -p "Continue y/n? " ANS
+		fi
+
+		if [[ $ANS =~ ^([yY][eE][sS]|[yY])$ ]]
+		then
+		    return 0
+		fi
+done
 
 }
 
-function doSave() {
+function getHelp() {
+    echo "--save : Creates a backup of the live codebase"
+    echo "--status : give status info on the hifi.service"
+    echo "--update : Creates a backup of the current live folder then updates the code."
+    echo "--restore : restore code from one of the last backups"
+    echo "the process is controlled by systemd to to restart stop etc. use systemctl <start,stop,restart,status> hifi.service"
 
+}
+
+
+function doUpdate() {
+
+
+    if doContinue $1;
+        then
+            systemctl stop hifi.service
+            cd $HIFIBASEDIR/source
+
+            git fetch --tags
+            LATEST=$(git describe --abbrev=0 --tags)
+            git checkout $LATEST
+            cmake3 -B$HIFIBASEDIR/build
+
+            cd -
+            cd $HIFIBASEDIR/build
+
+            make domain-server && make assignment-client
+            cd -
+            setPerms
+            systemctl start hifi.service
+        else
+            exit
+    fi
+
+}
+
+
+function doSave() {
+STAMP=`date +%Y-%m-%d_%H-%M-%S`
 
 
 echo "saving..."
 
-
-
+tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz $HIFIBASEDIR/live/*
+echo "DONE."
 }
 
 
-function getRepo {
 
-git fetch --tags
+BUILDDIR="$HIFIBASEDIR/build"
 
-LATEST=$(git describe --abbrev=0 --tags)
-
-echo "checking out " $LATEST
-sleep 2
-git checkout $LATEST
-
-}
-
-
-BUILDDIR="/opt/hifi/build"
-
-function changeowner  {
-  if [ -d "$BUILDDIR" ]; then
-    chown -R hifi:hifi $BUILDDIR
+function setPerms()  {
+  if [ -d "$HIFIBASEDIR/live" ]; then
+    chown -R hifi:hifi $HIFIBASEDIR/live
   fi
 }
 
@@ -46,9 +88,18 @@ systemctl status hifi.service
 
 
 function doRestore() {
+RESTOREFILEPATH="$HIFIBASEDIR/backups/$1"
 
 
-echo $1
+
+if doContinue $1;
+    then
+    rm -rf $HIFIBASEDIR/live
+    tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
+        echo "Restoring"
+    else
+        exit
+fi
 }
 
 if [ "$2" != "" ];
@@ -59,17 +110,17 @@ fi
 
     case $1 in
         --help)
-            usage
+            getHelp
             exit
             ;;
         --save)
             doSave
             ;;
         --status)
-            echo "status"
+            getStatus
             ;;
         --update)
-            echo "update"
+            doUpdate
             ;;
         --restore)
             echo "Listing backup files:"
@@ -81,7 +132,7 @@ fi
 
             read -p 'File?' CHOSENFILE
             echo "Using:" $CHOSENFILE
-
+            sleep 1
             doRestore $CHOSENFILE
             ;;
         *)
