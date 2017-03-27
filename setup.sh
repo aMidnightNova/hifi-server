@@ -8,7 +8,7 @@ if (( $EUID != 0 )); then
 fi
 
 
-if [ -d /opt/hifi ]; then
+if [ -d $HIFIBASEDIR ]; then
     echo "Please install into a new install"
     exit
 fi
@@ -45,10 +45,7 @@ function installHifi() {
         chown -R hifi:hifi $HIFIBASEDIR/live
       fi
     }
-    if [ ! -f /opt/hifi ]; then
-        echo "Already Installed."
-        exit
-    fi
+    
 
     mkdir -p $HIFIBASEDIR/live
     mkdir -p $HIFIBASEDIR/build
