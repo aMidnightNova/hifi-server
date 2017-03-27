@@ -3,13 +3,12 @@ Description=Hifi
 After=network.target
 
 [Service]
-ExecStart=/opt/hifi/live/assignment-client
-ExecStart=/opt/hifi/live/domain-server
+ExecStart=/opt/hifi/live/domain-server/domain-server
 Restart=always
 RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=hifi
+SyslogIdentifier=hifi-domain-server
 User=hifi
 Group=hifi
 Environment=PATH=/usr/bin/:/usr/local/bin/

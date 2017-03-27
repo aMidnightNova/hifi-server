@@ -29,7 +29,8 @@ function installHifiServer() {
     mkdir -p $HIFIBASEDIR/hifi-server
 
     git clone https://github.com/amvmoody/hifi-server.git $HIFIBASEDIR/hifi-server
-    cp $HIFIBASEDIR/hifi-server/setup/hifi.service /etc/systemd/system/hifi.service
+    cp $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
+    cp $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
     cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
 
 }

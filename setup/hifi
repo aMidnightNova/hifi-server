@@ -37,7 +37,8 @@ function updateHifiServer() {
     cd $HIFIBASEDIR/hifi-server
 
     git pull
-    yes | cp -f $HIFIBASEDIR/source/setup/hifi.service /etc/systemd/system/hifi.service
+    yes | cp -f $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
+    yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
     systemctl daemon-reload
     yes | cp -f $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
 
@@ -102,7 +103,8 @@ function setPerms()  {
 
 
 function getStatus() {
-systemctl status hifi.service
+    systemctl status domain-server.service
+    systemctl status assignment-client.service
 }
 
 
