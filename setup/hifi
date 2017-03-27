@@ -56,11 +56,12 @@ function doUpdate() {
             git fetch --tags
             LATEST=$(git describe --abbrev=0 --tags)
             git checkout tags/$LATEST
-            cmake3 -B$HIFIBASEDIR/build
+
 
             rm -rf $HIFIBASEDIR/build/*
 
             cd $HIFIBASEDIR/build
+            cmake3 -DGET_LIBOVR=1 $HIFIBASEDIR/source
 
             make domain-server && make assignment-client
 

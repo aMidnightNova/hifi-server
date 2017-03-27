@@ -61,9 +61,8 @@ function installHifi() {
     LATEST=$(git describe --abbrev=0 --tags)
     git checkout tags/$LATEST
 
-    cmake3 -B$HIFIBASEDIR/build -DGET_LIBOVR=1
-
     cd $HIFIBASEDIR/build
+    cmake3 -DGET_LIBOVR=1 $HIFIBASEDIR/source
 
     make domain-server && make assignment-client
 
