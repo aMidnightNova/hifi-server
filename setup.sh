@@ -45,7 +45,7 @@ function installHifi() {
         chown -R hifi:hifi $HIFIBASEDIR/live
       fi
     }
-    
+
 
     mkdir -p $HIFIBASEDIR/live
     mkdir -p $HIFIBASEDIR/build
@@ -54,6 +54,9 @@ function installHifi() {
     mkdir -p $HIFIBASEDIR/logs
 
     git clone https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
+
+    cd $HIFIBASEDIR/source
+
     git fetch --tags
     LATEST=$(git describe --abbrev=0 --tags)
     git checkout tags/$LATEST
