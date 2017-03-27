@@ -1,5 +1,7 @@
 #!/bin/bash
 
+HIFIBASEDIR="/opt/hifi"
+
 if (( $EUID != 0 )); then
     echo "Please run as root"
     exit
@@ -23,13 +25,21 @@ yum groupinstall -y "development tools"
 yum openssl-devel -y cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt*
 
 
+function installHifiServer() {
+    mkdir -p $HIFIBASEDIR/hifi-server
+
+    git clone https://github.com/amvmoody/hifi-server.git $HIFIBASEDIR/hifi-server
+    cp $HIFIBASEDIR/hifi-server/setup/hifi.service /etc/systemd/system/hifi.service
+    cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
+
+}
 
 
-function doInstall() {
+function installHifi() {
     id -u hifi &>/dev/null || useradd hifi
     id -g hifi &>/dev/null || groupadd hifi
 
-    HIFIBASEDIR="/opt/hifi"
+
     function setPerms()  {
       if [ -d "$HIFIBASEDIR/live" ]; then
         chown -R hifi:hifi $HIFIBASEDIR/live
@@ -40,11 +50,11 @@ function doInstall() {
         exit
     fi
 
-    mkdir -p /opt/hifi/live
-    mkdir -p /opt/hifi/build
-    mkdir -p /opt/hifi/source
-    mkdir -p /opt/hifi/backups
-    mkdir -p /opt/hifi/logs
+    mkdir -p $HIFIBASEDIR/live
+    mkdir -p $HIFIBASEDIR/build
+    mkdir -p $HIFIBASEDIR/source
+    mkdir -p $HIFIBASEDIR/backups
+    mkdir -p $HIFIBASEDIR/logs
 
     git clone https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
     git fetch --tags
@@ -58,10 +68,8 @@ function doInstall() {
     make domain-server && make assignment-client
 
 
-
-    cp $HIFIBASEDIR/source/setup/hifi.service /etc/systemd/system/hifi.service
     cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
-    cp $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
+
 
 
     setPerms
@@ -96,4 +104,6 @@ systemctl restart firewalld.service
 
 firewalldSetup
 
-doInstall
+installHifiServer
+
+installHifi

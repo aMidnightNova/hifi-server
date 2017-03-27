@@ -27,8 +27,19 @@ function getHelp() {
     echo "--save : Creates a backup of the live codebase"
     echo "--status : give status info on the hifi.service"
     echo "--update : Creates a backup of the current live folder then updates the code."
+    echo "--update-hifi-server : Updates this build tool "
     echo "--restore : restore code from one of the last backups"
     echo "the process is controlled by systemd to restart stop etc. use systemctl <start,stop,restart,status> hifi.service"
+
+}
+
+function updateHifiServer() {
+    cd $HIFIBASEDIR/hifi-server
+
+    git pull
+    yes | cp -f $HIFIBASEDIR/source/setup/hifi.service /etc/systemd/system/hifi.service
+    systemctl daemon-reload
+    yes | cp -f $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
 
 }
 
@@ -38,6 +49,7 @@ function doUpdate() {
 
     if doContinue $1;
         then
+            doSave
             systemctl stop hifi.service
             cd $HIFIBASEDIR/source
 
@@ -54,11 +66,8 @@ function doUpdate() {
 
             rm -rf $HIFIBASEDIR/live/*
 
-            yes | cp -f $HIFIBASEDIR/source/setup/hifi.service /etc/systemd/system/hifi.service
-            systemctl daemon-reload
-
             cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
-            yes | cp -f $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
+
 
             setPerms
             systemctl start hifi.service
@@ -131,6 +140,9 @@ fi
         --update)
             doUpdate
             ;;
+        --update-hifi-server)
+            updateHifiServer
+            ;;
         --restore)
             echo "Listing backup files:"
 
@@ -151,3 +163,4 @@ fi
             ;;
     esac
     shift
+exit
