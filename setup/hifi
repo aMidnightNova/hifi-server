@@ -100,9 +100,9 @@ function doRestore() {
 
     echo "Listing backup files:"
 
-    find /opt/hifi/backups/ -type f -printf "%f\n"
+    find /opt/hifi/backups/ -type f -printf "%f\n" | sort
 
-    read -p "File?: " CHOSENFILE
+    read -p "Filename?: " CHOSENFILE
     echo "Using: " $CHOSENFILE
     sleep 1
 
