@@ -138,6 +138,11 @@ function restartHifi() {
     systemctl restart assignment-client.service
 }
 
+function trimBackups() {
+    cd $HIFIBASEDIR/backups
+    ls -tr | head -n -5 | xargs rm
+}
+
 if [ "$2" != "" ];
 then
     echo "Single argument only."
@@ -173,6 +178,9 @@ case $1 in
     --restart)
         restartHifi
         ;;
+    --trimbackups)
+        trimBackups
+        ;;
     *)
         echo "ERROR: unknown parameter \"$1\""
         usage
@@ -181,3 +189,4 @@ case $1 in
     esac
     shift
 exit
+
