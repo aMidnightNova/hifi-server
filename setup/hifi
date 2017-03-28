@@ -44,7 +44,7 @@ function doSave() {
 
     echo "Saving..."
 
-    tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz $HIFIBASEDIR/live/*
+    tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live/*
     echo "DONE."
 }
 
