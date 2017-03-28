@@ -103,7 +103,7 @@ RESTOREFILEPATH="$HIFIBASEDIR/backups/$1"
 
 if doContinue $1;
     then
-    rm -rf $HIFIBASEDIR/live
+    rm -rf $HIFIBASEDIR/live/*
     tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
         echo "Restoring"
     else
