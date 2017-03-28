@@ -9,19 +9,15 @@ fi
 
 
 if [ -d $HIFIBASEDIR ]; then
-    echo "Please install into a new install"
+    echo "Please install into a new install."
     exit
 fi
 
 
 yum update -y
-
 yum install -y epel-release
-yum install -y --enablerepo=epel
 
-
-
-yum groupinstall -y "development tools"
+yum groupinstall -y --enablerepo=epel "development tools"
 yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt*
 
 
@@ -32,6 +28,7 @@ function installHifiServer() {
     cp $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
     cp $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
     cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
+
     chmod 755 /usr/local/bin/hifi
 }
 
@@ -41,10 +38,10 @@ function installHifi() {
     id -g hifi &>/dev/null || groupadd hifi
 
 
-    function setPerms()  {
-      if [ -d "$HIFIBASEDIR/live" ]; then
-        chown -R hifi:hifi $HIFIBASEDIR/live
-      fi
+    function setPerms() {
+        if [ -d "$HIFIBASEDIR/live" ]; then
+            chown -R hifi:hifi $HIFIBASEDIR/live
+        fi
     }
 
 
@@ -67,12 +64,10 @@ function installHifi() {
 
     make domain-server && make assignment-client
 
-
     cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
 
-
-
     setPerms
+
     systemctl enable domain-server.service
     systemctl start domain-server.service
     systemctl enable assignment-client.service
@@ -90,6 +85,7 @@ yum install firewalld -y
 
 systemctl enable firewalld.service
 systemctl start firewalld.service
+
 firewall-cmd --permanent --zone=public --add-port=40100/tcp
 firewall-cmd --permanent --zone=public --add-port=40101/tcp
 firewall-cmd --permanent --zone=public --add-port=40102/tcp
@@ -103,6 +99,7 @@ firewall-cmd --permanent --zone=public --add-port=40102/udp
 firewall-cmd --permanent --zone=public --add-port=40103/udp
 firewall-cmd --permanent --zone=public --add-port=40104/udp
 firewall-cmd --permanent --zone=public --add-port=40105/udp
+
 systemctl restart firewalld.service
 
 }

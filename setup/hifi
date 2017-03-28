@@ -6,20 +6,19 @@ function doContinue() {
 ANS=""
 
 while [[ ! $ANS =~ ^([yY][eE][sS]|[yY])$ ]]
-	do
-		if [[ $ANS =~ ^([nN][oO]|[nN])$ ]]
-		then
-			return 1
-		else
-			read -p "Continue y/n? " ANS
-		fi
+    do
+        if [[ $ANS =~ ^([nN][oO]|[nN])$ ]]
+            then
+                return 1
+            else
+                read -p "Continue y/n? " ANS
+        fi
 
-		if [[ $ANS =~ ^([yY][eE][sS]|[yY])$ ]]
-		then
-		    return 0
-		fi
-done
-
+        if [[ $ANS =~ ^([yY][eE][sS]|[yY])$ ]]
+            then
+                return 0
+        fi
+    done
 }
 
 function setPerms()  {
@@ -89,10 +88,14 @@ function updateHifiServer() {
     cd $HIFIBASEDIR/hifi-server
 
     git pull
+
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
+
     systemctl daemon-reload
+
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
+
     chmod 755 /usr/local/bin/hifi
 
 }

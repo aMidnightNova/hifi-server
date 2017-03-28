@@ -14,3 +14,4 @@ bash <(curl -Ls https://raw.githubusercontent.com/amvmoody/hifi-server/master/se
 - hifi --restore : Restore code from one of the last backups.
 - hifi --stop : stops Hifi.
 - hifi --start : Starts Hifi.
+- hifi --restart : Restarts Hifi.
