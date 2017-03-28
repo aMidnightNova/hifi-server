@@ -32,7 +32,7 @@ function installHifiServer() {
     cp $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
     cp $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
     cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
-
+    chmod 755 /usr/local/bin/hifi
 }
 
 

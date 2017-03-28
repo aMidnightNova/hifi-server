@@ -2,7 +2,6 @@
 
 HIFIBASEDIR="/opt/hifi"
 
-
 function doContinue() {
 ANS=""
 
@@ -23,27 +22,36 @@ done
 
 }
 
+function setPerms()  {
+  if [ -d "$HIFIBASEDIR/live" ]; then
+    chown -R hifi:hifi $HIFIBASEDIR/live
+  fi
+}
+
 function getHelp() {
-    echo "--save : Creates a backup of the live codebase"
-    echo "--status : give status info on the hifi.service"
-    echo "--update : Creates a backup of the current live folder then updates the code."
-    echo "--update-hifi-server : Updates this build tool "
-    echo "--restore : restore code from one of the last backups"
-    echo "the process is controlled by systemd to restart stop etc. use systemctl <start,stop,restart,status> hifi.service"
-
+    echo " --save : Creates a backup of the live codebase"
+    echo " --status : give status info on the hifi.service"
+    echo " --update : Creates a backup of the current live folder then updates the code."
+    echo " --update-hifi-server : Updates this build tool."
+    echo " --restore : Restore code from one of the last backups."
+    echo " --stop : stops Hifi."
+    echo " --start : Starts Hifi."
+    echo " --restart : Restarts Hifi."
 }
 
-function updateHifiServer() {
-    cd $HIFIBASEDIR/hifi-server
+function doSave() {
+    STAMP=`date +%Y-%m-%d_%H-%M-%S`
 
-    git pull
-    yes | cp -f $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
-    yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
-    systemctl daemon-reload
-    yes | cp -f $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
+    echo "Saving..."
 
+    tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz $HIFIBASEDIR/live/*
+    echo "DONE."
 }
 
+function getStatus() {
+    systemctl status domain-server.service
+    systemctl status assignment-client.service
+}
 
 function doUpdate() {
 
@@ -58,7 +66,6 @@ function doUpdate() {
             LATEST=$(git describe --abbrev=0 --tags)
             git checkout tags/$LATEST
 
-
             rm -rf $HIFIBASEDIR/build/*
 
             cd $HIFIBASEDIR/build
@@ -70,7 +77,6 @@ function doUpdate() {
 
             cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
 
-
             setPerms
             systemctl start hifi.service
         else
@@ -79,34 +85,16 @@ function doUpdate() {
 
 }
 
+function updateHifiServer() {
+    cd $HIFIBASEDIR/hifi-server
 
-function doSave() {
-STAMP=`date +%Y-%m-%d_%H-%M-%S`
+    git pull
+    yes | cp -f $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
+    yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
+    systemctl daemon-reload
+    yes | cp -f $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
 
-
-echo "saving..."
-
-tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz $HIFIBASEDIR/live/*
-echo "DONE."
 }
-
-
-
-BUILDDIR="$HIFIBASEDIR/build"
-
-function setPerms()  {
-  if [ -d "$HIFIBASEDIR/live" ]; then
-    chown -R hifi:hifi $HIFIBASEDIR/live
-  fi
-}
-
-
-
-function getStatus() {
-    systemctl status domain-server.service
-    systemctl status assignment-client.service
-}
-
 
 function doRestore() {
 RESTOREFILEPATH="$HIFIBASEDIR/backups/$1"
@@ -121,6 +109,21 @@ if doContinue $1;
     else
         exit
 fi
+}
+
+function startHifi() {
+    systemctl start domain-server.service
+    systemctl start assignment-client.service
+}
+
+function stopHifi() {
+    systemctl stop domain-server.service
+    systemctl stop assignment-client.service
+}
+
+function restartHifi() {
+    systemctl restart domain-server.service
+    systemctl restart assignment-client.service
 }
 
 if [ "$2" != "" ];
@@ -158,6 +161,15 @@ fi
             echo "Using: " $CHOSENFILE
             sleep 1
             doRestore $CHOSENFILE
+            ;;
+        --start)
+            startHifi
+            ;;
+        --stop)
+            stopHifi
+            ;;
+        --restart)
+            restartHifi
             ;;
         *)
             echo "ERROR: unknown parameter \"$1\""
