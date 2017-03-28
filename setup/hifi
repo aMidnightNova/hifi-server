@@ -93,6 +93,7 @@ function updateHifiServer() {
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
     systemctl daemon-reload
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
+    chmod 755 /usr/local/bin/hifi
 
 }
 
@@ -140,7 +141,7 @@ function restartHifi() {
 
 function trimBackups() {
     cd $HIFIBASEDIR/backups
-    ls -tr | head -n -5 | xargs rm
+    ls -tr | head -n -10 | xargs rm
 }
 
 if [ "$2" != "" ];

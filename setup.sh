@@ -112,3 +112,5 @@ firewalldSetup
 installHifiServer
 
 installHifi
+
+crontab -l | { cat; echo "5 1 * * * hifi --trimbackups > /opt/hifi/logs/cron.log"; } | crontab -
