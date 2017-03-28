@@ -59,7 +59,7 @@ function doUpdate() {
     if doContinue $1;
         then
             doSave
-            systemctl stop hifi.service
+            stopHifi
             cd $HIFIBASEDIR/source
 
             git fetch --tags
@@ -78,7 +78,7 @@ function doUpdate() {
             cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
 
             setPerms
-            systemctl start hifi.service
+            startHifi
         else
             exit
     fi
@@ -103,9 +103,11 @@ RESTOREFILEPATH="$HIFIBASEDIR/backups/$1"
 
 if doContinue $1;
     then
-    rm -rf $HIFIBASEDIR/live/*
-    tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
+        stopHifi
+        rm -rf $HIFIBASEDIR/live/*
+        tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
         echo "Restoring"
+        startHifi
     else
         exit
 fi
