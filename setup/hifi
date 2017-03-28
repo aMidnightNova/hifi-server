@@ -97,7 +97,17 @@ function updateHifiServer() {
 }
 
 function doRestore() {
-RESTOREFILEPATH="$HIFIBASEDIR/backups/$1"
+
+    echo "Listing backup files:"
+
+    find /opt/hifi/backups/ -type f -printf "%f\n"
+
+    read -p "File?: " CHOSENFILE
+    echo "Using: " $CHOSENFILE
+    sleep 1
+
+
+    RESTOREFILEPATH="$HIFIBASEDIR/backups/$CHOSENFILE"
 
 
 
@@ -106,7 +116,7 @@ if doContinue $1;
         stopHifi
         rm -rf $HIFIBASEDIR/live/*
         tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
-        echo "Restoring"
+        echo "Restored"
         startHifi
     else
         exit
@@ -134,50 +144,40 @@ then
     exit
 fi
 
-    case $1 in
-        --help)
-            getHelp
-            exit
-            ;;
-        --save)
-            doSave
-            ;;
-        --status)
-            getStatus
-            ;;
-        --update)
-            doUpdate
-            ;;
-        --update-hifi-server)
-            updateHifiServer
-            ;;
-        --restore)
-            echo "Listing backup files:"
-
-            for FILE in "/opt/hifi/backups"/*
-            do
-              echo "$FILE"
-            done
-
-            read -p "File?: " CHOSENFILE
-            echo "Using: " $CHOSENFILE
-            sleep 1
-            doRestore $CHOSENFILE
-            ;;
-        --start)
-            startHifi
-            ;;
-        --stop)
-            stopHifi
-            ;;
-        --restart)
-            restartHifi
-            ;;
-        *)
-            echo "ERROR: unknown parameter \"$1\""
-            usage
-            exit 1
-            ;;
+case $1 in
+    --help)
+        getHelp
+        exit
+        ;;
+    --save)
+        doSave
+        ;;
+    --status)
+        getStatus
+        ;;
+    --update)
+        doUpdate
+        ;;
+    --update-hifi-server)
+        updateHifiServer
+        ;;
+    --restore)
+        doRestore
+        ;;
+    --start)
+        startHifi
+        ;;
+    --stop)
+        stopHifi
+        ;;
+    --restart)
+        restartHifi
+        ;;
+    *)
+        echo "ERROR: unknown parameter \"$1\""
+        usage
+        exit 1
+        ;;
     esac
     shift
 exit
