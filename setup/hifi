@@ -92,7 +92,7 @@ function updateHifiServer() {
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
     systemctl daemon-reload
-    yes | cp -f $HIFIBASEDIR/source/setup/hifi /usr/local/bin/hifi
+    yes | cp -f $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
 
 }
 
