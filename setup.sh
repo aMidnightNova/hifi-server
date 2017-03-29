@@ -30,6 +30,11 @@ function installHifiServer() {
     cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
 
     chmod 755 /usr/local/bin/hifi
+    if [[ $1 =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
+    then
+        sed -i 's/STABLE=0/STABLE=1/' /usr/local/bin/hifi
+    fi
+
 }
 
 
@@ -51,16 +56,21 @@ function installHifi() {
     mkdir -p $HIFIBASEDIR/backups
     mkdir -p $HIFIBASEDIR/logs
 
-    git clone https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
+    if [[ $1 =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
+     then
+        git clone https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
 
-    cd $HIFIBASEDIR/source
+        cd $HIFIBASEDIR/source
 
-    git fetch --tags
-    LATEST=$(git describe --abbrev=0 --tags)
-    git checkout tags/$LATEST
+        git fetch --tags
+        LATEST=$(git describe --abbrev=0 --tags)
+        git checkout tags/$LATEST
+    else
+        git clone -b stable --single-branch https://github.com/highfidelity/hifi.git
+    fi
 
     cd $HIFIBASEDIR/build
-    cmake3 -DGET_LIBOVR=1 $HIFIBASEDIR/source
+    cmake3 -DGET_LIBOVR=1 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
 
     make domain-server && make assignment-client
 

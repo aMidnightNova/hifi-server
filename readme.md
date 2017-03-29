@@ -1,8 +1,15 @@
 # Installation
 
 Run as root
+
+## Stable
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/amvmoody/hifi-server/master/setup.sh)
+```
+
+## Development
+```
+bash <(curl -Ls https://raw.githubusercontent.com/amvmoody/hifi-server/master/setup.sh) dev
 ```
 
 # Usage 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+STABLE=0
+
 HIFIBASEDIR="/opt/hifi"
 
 function doContinue() {
@@ -61,14 +63,19 @@ function doUpdate() {
             stopHifi
             cd $HIFIBASEDIR/source
 
-            git fetch --tags
-            LATEST=$(git describe --abbrev=0 --tags)
-            git checkout tags/$LATEST
+            if [$STABLE];
+                then
+                    git pull
+                else
+                    git fetch --tags
+                    LATEST=$(git describe --abbrev=0 --tags)
+                    git checkout tags/$LATEST
+            fi
 
             rm -rf $HIFIBASEDIR/build/*
 
             cd $HIFIBASEDIR/build
-            cmake3 -DGET_LIBOVR=1 $HIFIBASEDIR/source
+            cmake3 -DGET_LIBOVR=1 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
 
             make domain-server && make assignment-client
 
