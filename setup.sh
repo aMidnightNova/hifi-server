@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DEPLOYDEV="$1"
+
 HIFIBASEDIR="/opt/hifi"
 
 if (( $EUID != 0 )); then
@@ -30,7 +32,7 @@ function installHifiServer() {
     cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
 
     chmod 755 /usr/local/bin/hifi
-    if [[ $1 =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
+    if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
     then
         sed -i 's/STABLE=0/STABLE=1/' /usr/local/bin/hifi
     fi
@@ -56,8 +58,9 @@ function installHifi() {
     mkdir -p $HIFIBASEDIR/backups
     mkdir -p $HIFIBASEDIR/logs
 
-    if [[ $1 =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
+    if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
      then
+        echo "#### DEV ####"
         git clone https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
 
         cd $HIFIBASEDIR/source
@@ -66,6 +69,7 @@ function installHifi() {
         LATEST=$(git describe --abbrev=0 --tags)
         git checkout tags/$LATEST
     else
+        echo "#### STABLE ####"
         git clone -b stable --single-branch https://github.com/highfidelity/hifi.git
     fi
 

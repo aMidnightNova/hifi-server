@@ -194,7 +194,7 @@ case $1 in
         ;;
     *)
         echo "ERROR: unknown parameter \"$1\""
-        usage
+        getHelp
         exit 1
         ;;
     esac
