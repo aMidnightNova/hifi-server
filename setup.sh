@@ -34,7 +34,7 @@ function installHifiServer() {
     chmod 755 /usr/local/bin/hifi
     if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
     then
-        sed -i 's/STABLE=0/STABLE=1/' /usr/local/bin/hifi
+        sed -i 's/STABLE=true/STABLE=false/' /usr/local/bin/hifi
     fi
 
 }

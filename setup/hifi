@@ -1,6 +1,6 @@
 #!/bin/bash
 
-STABLE=0
+STABLE=true
 
 HIFIBASEDIR="/opt/hifi"
 
@@ -63,7 +63,7 @@ function doUpdate() {
             stopHifi
             cd $HIFIBASEDIR/source
 
-            if [$STABLE];
+            if $STABLE;
                 then
                     git pull
                 else
