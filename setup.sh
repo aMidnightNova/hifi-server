@@ -70,7 +70,7 @@ function installHifi() {
         git checkout tags/$LATEST
     else
         echo "#### STABLE ####"
-        git clone -b stable --single-branch https://github.com/highfidelity/hifi.git
+        git clone -b stable --single-branch https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
     fi
 
     cd $HIFIBASEDIR/build
