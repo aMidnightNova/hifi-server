@@ -3,7 +3,7 @@ Description=Hifi
 After=network.target domain-server.service
 
 [Service]
-ExecStart=/opt/hifi/live/assignment-client/assignment-client
+ExecStart=/opt/hifi/live/assignment-client/assignment-client -n 6
 Restart=always
 RestartSec=10
 StandardOutput=syslog
