@@ -4,6 +4,7 @@ DEPLOYDEV="$1"
 
 HIFIBASEDIR="/opt/hifi"
 
+
 if (( $EUID != 0 )); then
     echo "Please run as root"
     exit
@@ -34,7 +35,7 @@ function installHifiServer() {
     chmod 755 /usr/local/bin/hifi
     if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
     then
-        sed -i 's/STABLE=true/STABLE=false/' /usr/local/bin/hifi
+        sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' /usr/local/bin/hifi
     fi
 
 }
@@ -58,23 +59,33 @@ function installHifi() {
     mkdir -p $HIFIBASEDIR/backups
     mkdir -p $HIFIBASEDIR/logs
 
-    if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
-     then
-        echo "#### DEV ####"
-        git clone https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
+    LATEST=""
+    function gitClone() {
+        git clone -b $1 --single-branch https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
 
-        cd $HIFIBASEDIR/source
-
+        cd $HIFIBASEDIR
         git fetch --tags
         LATEST=$(git describe --abbrev=0 --tags)
         git checkout tags/$LATEST
+
+    }
+
+    if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
+     then
+        echo "#### DEV ####"
+        gitClone master
+        cd $HIFIBASEDIR/build
+
+        cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
     else
-        echo "#### STABLE ####"
-        git clone -b stable --single-branch https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
+        echo "#### PRODUCTION ####"
+        gitClone stable
+        cd $HIFIBASEDIR/build
+
+        RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$($LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
 
-    cd $HIFIBASEDIR/build
-    cmake3 -DGET_LIBOVR=1 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
+
 
     make domain-server && make assignment-client
 
@@ -124,4 +135,4 @@ installHifiServer
 
 installHifi
 
-crontab -l | { cat; echo "5 1 * * * hifi --trimbackups > /opt/hifi/logs/cron.log"; } | crontab -
+crontab -l | { cat; echo "5 1 * * * hifi --cron >> /opt/hifi/logs/cron.log"; } | crontab -

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-STABLE=true
+PRODUCTION=true
 
 HIFIBASEDIR="/opt/hifi"
 
@@ -40,13 +40,20 @@ function getHelp() {
     echo " --restart : Restarts Hifi."
 }
 
-function doSave() {
+function doSave() { #TODO: probably should figure out where the entities are stored and back them up as well.
+
+
     STAMP=`date +%Y-%m-%d_%H-%M-%S`
 
-    echo "Saving..."
 
-    tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live .
-    echo "DONE."
+    if [$1 == "verbose"]
+        then
+            tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live .
+        else
+            tar -zcf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live .
+    fi
+
+    echo "save DONE. `date`"
 }
 
 function getStatus() {
@@ -59,23 +66,24 @@ function doUpdate() {
 
     if doContinue $1;
         then
-            doSave
+            doSave verbose
             stopHifi
             cd $HIFIBASEDIR/source
 
-            if $STABLE;
-                then
-                    git pull
-                else
-                    git fetch --tags
-                    LATEST=$(git describe --abbrev=0 --tags)
-                    git checkout tags/$LATEST
-            fi
+            git fetch --tags
+            LATEST=$(git describe --abbrev=0 --tags)
+            git checkout tags/$LATEST
 
             rm -rf $HIFIBASEDIR/build/*
 
             cd $HIFIBASEDIR/build
-            cmake3 -DGET_LIBOVR=1 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
+
+            if $PRODUCTION;
+                then
+                    RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$($LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+                else
+                    cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+            fi
 
             make domain-server && make assignment-client
 
@@ -104,6 +112,14 @@ function updateHifiServer() {
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
 
     chmod 755 /usr/local/bin/hifi
+
+    cd $HIFIBASEDIR/source
+
+
+    if [ $(git rev-parse --abbrev-ref HEAD) == "stable" ]
+    then
+        sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' /usr/local/bin/hifi
+    fi
 
 }
 
@@ -151,8 +167,15 @@ function restartHifi() {
 
 function trimBackups() {
     cd $HIFIBASEDIR/backups
-    ls -tr | head -n -10 | xargs rm
+    ls -tr | head -n -10 | xargs -l -r sh -c 'echo Deleting $1 on `date` && rm $1' --
 }
+
+function doCron() {
+ doSave
+ trimBackups
+}
+
+
 
 if [ "$2" != "" ];
 then
@@ -163,10 +186,9 @@ fi
 case $1 in
     --help)
         getHelp
-        exit
         ;;
     --save)
-        doSave
+        doSave verbose
         ;;
     --status)
         getStatus
@@ -189,13 +211,15 @@ case $1 in
     --restart)
         restartHifi
         ;;
-    --trimbackups)
+    --trimbackups) #not listed in help
+        trimBackups
+        ;;
+    --cron) #not listed in help
         trimBackups
         ;;
     *)
         echo "ERROR: unknown parameter \"$1\""
         getHelp
-        exit 1
         ;;
     esac
     shift
