@@ -63,7 +63,7 @@ function installHifi() {
     function gitClone() {
         git clone -b $1 --single-branch https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
 
-        cd $HIFIBASEDIR
+        cd $HIFIBASEDIR/source
         git fetch --tags
         LATEST=$(git describe --abbrev=0 --tags)
         git checkout tags/$LATEST
