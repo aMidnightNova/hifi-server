@@ -82,7 +82,7 @@ function installHifi() {
         gitClone stable
         cd $HIFIBASEDIR/build
 
-        RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$($LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+        RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
 
 
