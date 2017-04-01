@@ -53,7 +53,7 @@ function doSave() { #TODO: probably should figure out where the entities are sto
             tar -zcf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live .
     fi
 
-    echo "save DONE. `date`"
+    echo "saved IN $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz ON `date`"
 }
 
 function getStatus() {
@@ -117,8 +117,8 @@ function updateHifiServer() {
 
 
     if [ $(git rev-parse --abbrev-ref HEAD) == "stable" ]
-    then
-        sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' /usr/local/bin/hifi
+        then
+            sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' /usr/local/bin/hifi
     fi
 
 }
