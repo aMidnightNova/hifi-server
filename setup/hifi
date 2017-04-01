@@ -46,7 +46,7 @@ function doSave() { #TODO: probably should figure out where the entities are sto
     STAMP=`date +%Y-%m-%d_%H-%M-%S`
 
 
-    if [$1 == "verbose"]
+    if [ $1 == "verbose" ]
         then
             tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live .
         else
