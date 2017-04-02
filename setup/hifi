@@ -167,14 +167,12 @@ function restartHifi() {
 
 function trimBackups() {
     cd $HIFIBASEDIR/backups
-    ls -tr | head -n -10 | xargs -l -r sh -c 'echo Deleting $1 on `date` && rm $1' --
+    ls -tr | head -n -10 | xargs -l -r sh -c 'echo Deleting $1 ON `date` && rm $1' --
 }
 
 function doCron() {
-    echo "Cron START: `date`"
     doSave
     trimBackups
-    echo "Cron END: `date`"
 }
 
 
