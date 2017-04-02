@@ -171,8 +171,10 @@ function trimBackups() {
 }
 
 function doCron() {
- doSave
- trimBackups
+    echo "Cron START: `date`"
+    doSave
+    trimBackups
+    echo "Cron END: `date`"
 }
 
 
@@ -222,6 +224,5 @@ case $1 in
         getHelp
         ;;
     esac
-    shift
 exit
 
