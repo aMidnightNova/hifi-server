@@ -215,7 +215,7 @@ case $1 in
         trimBackups
         ;;
     --cron) #not listed in help
-        trimBackups
+        doCron
         ;;
     *)
         echo "ERROR: unknown parameter \"$1\""
