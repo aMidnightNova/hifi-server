@@ -27,7 +27,13 @@ yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel lib
 function installHifiServer() {
     mkdir -p $HIFIBASEDIR/hifi-server
 
-    git clone https://github.com/amvmoody/hifi-server.git $HIFIBASEDIR/hifi-server
+    git clone -b master --single-branch https://github.com/amvmoody/hifi-server.git $HIFIBASEDIR/hifi-server
+
+    cd $HIFIBASEDIR/hifi-server
+    git fetch --tags
+    LATEST=$(git describe --abbrev=0 --tags)
+    git checkout tags/$LATEST
+
     cp $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
     cp $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
     cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi

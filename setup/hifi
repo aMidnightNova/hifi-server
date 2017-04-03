@@ -100,9 +100,11 @@ function doUpdate() {
 }
 
 function updateHifiServer() {
-    cd $HIFIBASEDIR/hifi-server
 
-    git pull
+    cd $HIFIBASEDIR/hifi-server
+    git fetch --tags
+    LATEST=$(git describe --abbrev=0 --tags)
+    git checkout tags/$LATEST
 
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
