@@ -2,12 +2,14 @@
 
 Run as root
 
-## Stable
+## Production
+This will launch Hifi in Production mode from the stable branch
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/amvmoody/hifi-server/master/setup.sh)
 ```
 
 ## Development
+This will launch Hifi in Development mode from the master branch
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/amvmoody/hifi-server/master/setup.sh) dev
 ```
