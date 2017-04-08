@@ -67,7 +67,13 @@ function doUpdate() {
             stopHifi
             cd $HIFIBASEDIR/source
 
-            git pull
+            if $PRODUCTION
+                then
+                    git pull origin stable
+                else
+                    git pull origin master
+            fi
+
             LATEST=$(git describe --abbrev=0 --tags)
             git checkout tags/$LATEST
 
@@ -98,7 +104,7 @@ function doUpdate() {
 function updateHifiServer() {
 
     cd $HIFIBASEDIR/hifi-server
-    git pull
+    git pull origin master
     LATEST=$(git describe --abbrev=0 --tags)
     git checkout tags/$LATEST
 
