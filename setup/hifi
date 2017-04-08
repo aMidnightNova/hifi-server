@@ -113,7 +113,7 @@ function updateHifiServer() {
 
     systemctl daemon-reload
 
-    yes | cp -f $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
+    yes | cp -f $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi 2>/dev/null
 
     chmod 755 /usr/local/bin/hifi
 
