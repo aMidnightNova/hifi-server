@@ -75,7 +75,7 @@ function doUpdate() {
             fi
 
             LATEST=$(git describe --abbrev=0 --tags)
-            git checkout tags/$LATEST
+            git checkout -f tags/$LATEST
 
             rm -rf $HIFIBASEDIR/build/*
 
@@ -106,7 +106,7 @@ function updateHifiServer() {
     cd $HIFIBASEDIR/hifi-server
     git pull origin master
     LATEST=$(git describe --abbrev=0 --tags)
-    git checkout tags/$LATEST
+    git checkout -f tags/$LATEST
 
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/assignment-client.service /etc/systemd/system/assignment-client.service
     yes | cp -f $HIFIBASEDIR/hifi-server/setup/domain-server.service /etc/systemd/system/domain-server.service
