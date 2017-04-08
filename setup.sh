@@ -30,7 +30,6 @@ function installHifiServer() {
     git clone -b master --single-branch https://github.com/amvmoody/hifi-server.git $HIFIBASEDIR/hifi-server
 
     cd $HIFIBASEDIR/hifi-server
-    git fetch --tags
     LATEST=$(git describe --abbrev=0 --tags)
     git checkout tags/$LATEST
 
@@ -70,7 +69,6 @@ function installHifi() {
         git clone -b $1 --single-branch https://github.com/highfidelity/hifi.git $HIFIBASEDIR/source
 
         cd $HIFIBASEDIR/source
-        git fetch --tags
         LATEST=$(git describe --abbrev=0 --tags)
         git checkout tags/$LATEST
 

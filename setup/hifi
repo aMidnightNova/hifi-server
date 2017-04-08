@@ -42,9 +42,7 @@ function getHelp() {
 
 function doSave() { #TODO: probably should figure out where the entities are stored and back them up as well.
 
-
     STAMP=`date +%Y-%m-%d_%H-%M-%S`
-
 
     if [ "$1" == "verbose" ]
         then
@@ -63,14 +61,13 @@ function getStatus() {
 
 function doUpdate() {
 
-
     if doContinue $1;
         then
             doSave verbose
             stopHifi
             cd $HIFIBASEDIR/source
 
-            git fetch --tags
+            git pull
             LATEST=$(git describe --abbrev=0 --tags)
             git checkout tags/$LATEST
 
@@ -96,13 +93,12 @@ function doUpdate() {
         else
             exit
     fi
-
 }
 
 function updateHifiServer() {
 
     cd $HIFIBASEDIR/hifi-server
-    git fetch --tags
+    git pull
     LATEST=$(git describe --abbrev=0 --tags)
     git checkout tags/$LATEST
 
@@ -135,21 +131,18 @@ function doRestore() {
     echo "Using: " $CHOSENFILE
     sleep 1
 
-
     RESTOREFILEPATH="$HIFIBASEDIR/backups/$CHOSENFILE"
 
-
-
-if doContinue $1;
-    then
-        stopHifi
-        rm -rf $HIFIBASEDIR/live/*
-        tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
-        echo "Restored"
-        startHifi
-    else
-        exit
-fi
+    if doContinue $1;
+        then
+            stopHifi
+            rm -rf $HIFIBASEDIR/live/*
+            tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
+            echo "Restored"
+            startHifi
+        else
+            exit
+    fi
 }
 
 function startHifi() {
@@ -180,9 +173,9 @@ function doCron() {
 
 
 if [ "$2" != "" ];
-then
-    echo "Single argument only."
-    exit
+    then
+        echo "Single argument only."
+        exit
 fi
 
 case $1 in
@@ -224,5 +217,3 @@ case $1 in
         getHelp
         ;;
     esac
-exit
-
