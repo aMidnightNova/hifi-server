@@ -67,12 +67,13 @@ function doUpdate() {
             stopHifi
             cd $HIFIBASEDIR/source
 
-            if $PRODUCTION
+            if $PRODUCTION;
                 then
                     git pull origin stable
                 else
                     git pull origin master
             fi
+            git fetch
 
             LATEST=$(git describe --abbrev=0 --tags)
             git checkout -f tags/$LATEST
@@ -176,7 +177,51 @@ function doCron() {
     trimBackups
 }
 
+function updateByTag() {
+    read -p "Tag Name?: " CHOSENTAG
+    echo "Using: " $CHOSENTAG
+    sleep 1
 
+
+    if doContinue $1;
+        then
+            doSave verbose
+            stopHifi
+            cd $HIFIBASEDIR/source
+
+            if $PRODUCTION;
+                then
+                    git pull origin stable
+                else
+                    git pull origin master
+            fi
+            git fetch
+
+            git checkout -f tags/$CHOSENTAG
+
+            rm -rf $HIFIBASEDIR/build/*
+
+            cd $HIFIBASEDIR/build
+
+            if $PRODUCTION;
+                then
+                    RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+                else
+                    cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+            fi
+
+            make domain-server && make assignment-client
+
+            rm -rf $HIFIBASEDIR/live/*
+
+            cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
+
+            setPerms
+            startHifi
+        else
+            exit
+    fi
+}
 
 if [ "$2" != "" ];
     then
@@ -218,8 +263,11 @@ case $1 in
     --cron) #not listed in help
         doCron
         ;;
+    --update-by-tag) #not listed in help
+        updateByTag
+        ;;
     *)
         echo "ERROR: unknown parameter \"$1\""
         getHelp
         ;;
-    esac
+esac
