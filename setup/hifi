@@ -169,7 +169,7 @@ function restartHifi() {
 
 function trimBackups() {
     cd $HIFIBASEDIR/backups
-    ls -tr | head -n -10 | xargs -l -r sh -c "echo Deleting $1 ON `date` && rm $1" --
+    ls -tr | head -n -10 | xargs -l -r sh -c 'echo Deleting $1 ON `date` && rm $1' --
 }
 
 function doCron() {
