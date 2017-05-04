@@ -106,6 +106,7 @@ function updateHifiServer() {
 
     cd $HIFIBASEDIR/hifi-server
     git pull origin master
+    git fetch
     LATEST=$(git describe --abbrev=0 --tags)
     git checkout -f tags/$LATEST
 
