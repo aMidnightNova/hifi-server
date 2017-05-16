@@ -38,6 +38,7 @@ function getHelp() {
     echo " --stop : stops Hifi."
     echo " --start : Starts Hifi."
     echo " --restart : Restarts Hifi."
+    echo " --update-by-tag : Choose tag name to build."
 }
 
 function doSave() { #TODO: probably should figure out where the entities are stored and back them up as well.
@@ -122,9 +123,13 @@ function updateHifiServer() {
     cd $HIFIBASEDIR/source
 
 
-    if [ $(git rev-parse --abbrev-ref HEAD) == "stable" ]
+    if [ $(git rev-parse --abbrev-ref HEAD) == "master" ]
         then
             sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' /usr/local/bin/hifi
+    fi
+    if [ $(git rev-parse --abbrev-ref HEAD) == "stable" ]
+        then
+            sed -i '0,/PRODUCTION=false/s//PRODUCTION=true/' /usr/local/bin/hifi
     fi
 
 }
@@ -206,7 +211,7 @@ function updateByTag() {
 
             if $PRODUCTION;
                 then
-                    RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+                    RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $CHOSENTAG | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
                 else
                     cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
             fi
@@ -264,7 +269,7 @@ case $1 in
     --cron) #not listed in help
         doCron
         ;;
-    --update-by-tag) #not listed in help
+    --update-by-tag)
         updateByTag
         ;;
     *)
