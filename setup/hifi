@@ -181,6 +181,8 @@ function trimBackups() {
 function doCron() {
     doSave
     trimBackups
+    #this helps me gauge community interest, without it I have no idea how many are using it or if I should continue to update it.
+    curl -H "Content-Type: application/json" -X POST -d '{"type":"ping","name":"hifi-server"}' https://api.midnightrift.com/pingback
 }
 
 function updateByTag() {

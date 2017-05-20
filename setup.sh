@@ -139,4 +139,7 @@ installHifiServer
 
 installHifi
 
+#this helps me gauge community interest, without it I have no idea how many are using it or if I should continue to update it.
+curl -H "Content-Type: application/json" -X POST -d '{"type":"install","name":"hifi-server"}' https://api.midnightrift.com/pingback
+
 crontab -l | { cat; echo "5 1 * * * hifi --cron >> /opt/hifi/logs/cron.log"; } | crontab -
