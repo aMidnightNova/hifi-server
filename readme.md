@@ -28,3 +28,4 @@ bash <(curl -Ls https://raw.githubusercontent.com/amvmoody/hifi-server/master/se
 - hifi --stop : stops Hifi.
 - hifi --start : Starts Hifi.
 - hifi --restart : Restarts Hifi.
+- hifi --update-by-tag : Choose tag name to build.
