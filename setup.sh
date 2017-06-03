@@ -50,7 +50,7 @@ function installHifi() {
     id -u hifi &>/dev/null || useradd hifi
     id -g hifi &>/dev/null || groupadd hifi
 
-    scl enable devtoolset-4 bash
+    $(scl enable devtoolset-4 bash)
 
     function setPerms() {
         if [ -d "$HIFIBASEDIR/live" ]; then
