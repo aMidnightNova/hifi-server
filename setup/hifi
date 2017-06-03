@@ -90,7 +90,8 @@ function doUpdate() {
                     cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
             fi
 
-            scl enable devtoolset-4 "make domain-server && make assignment-client"
+            source scl_source enable devtoolset-4
+            make domain-server && make assignment-client
 
             rm -rf $HIFIBASEDIR/live/*
 
@@ -218,7 +219,8 @@ function updateByTag() {
                     cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
             fi
 
-            scl enable devtoolset-4 "make domain-server && make assignment-client"
+            source scl_source enable devtoolset-4
+            make domain-server && make assignment-client
 
             rm -rf $HIFIBASEDIR/live/*
 

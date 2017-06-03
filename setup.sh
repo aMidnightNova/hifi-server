@@ -91,7 +91,8 @@ function installHifi() {
 
 
 
-    scl enable devtoolset-4 "make domain-server && make assignment-client"
+    source scl_source enable devtoolset-4
+    make domain-server && make assignment-client
 
     cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
 
