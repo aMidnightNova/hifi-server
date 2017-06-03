@@ -18,10 +18,10 @@ fi
 
 
 yum update -y
-yum install -y epel-release
+yum install -y epel-release centos-release-scl
 
 yum groupinstall -y --enablerepo=epel "development tools"
-yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt*
+yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt* devtoolset-4-gcc-c++
 
 
 function installHifiServer() {
@@ -50,6 +50,7 @@ function installHifi() {
     id -u hifi &>/dev/null || useradd hifi
     id -g hifi &>/dev/null || groupadd hifi
 
+    scl enable devtoolset-4 bash
 
     function setPerms() {
         if [ -d "$HIFIBASEDIR/live" ]; then
