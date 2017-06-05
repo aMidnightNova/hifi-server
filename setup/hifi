@@ -83,6 +83,8 @@ function doUpdate() {
 
             cd $HIFIBASEDIR/build
 
+            source scl_source enable devtoolset-4
+
             if $PRODUCTION;
                 then
                     RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
@@ -90,7 +92,6 @@ function doUpdate() {
                     cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
             fi
 
-            source scl_source enable devtoolset-4
             make domain-server && make assignment-client
 
             rm -rf $HIFIBASEDIR/live/*
@@ -191,7 +192,6 @@ function updateByTag() {
     echo "Using: " $CHOSENTAG
     sleep 1
 
-
     if doContinue $1;
         then
             doSave verbose
@@ -212,6 +212,8 @@ function updateByTag() {
 
             cd $HIFIBASEDIR/build
 
+            source scl_source enable devtoolset-4
+
             if $PRODUCTION;
                 then
                     RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $CHOSENTAG | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
@@ -219,7 +221,6 @@ function updateByTag() {
                     cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
             fi
 
-            source scl_source enable devtoolset-4
             make domain-server && make assignment-client
 
             rm -rf $HIFIBASEDIR/live/*

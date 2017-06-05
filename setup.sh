@@ -74,24 +74,24 @@ function installHifi() {
 
     }
 
+    source scl_source enable devtoolset-4
+
     if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
-     then
-        echo "#### DEV ####"
-        gitClone master
-        cd $HIFIBASEDIR/build
+        then
+            echo "#### DEV ####"
+            gitClone master
+            cd $HIFIBASEDIR/build
 
-        cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
-    else
-        echo "#### PRODUCTION ####"
-        gitClone stable
-        cd $HIFIBASEDIR/build
+            cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
+        else
+            echo "#### PRODUCTION ####"
+            gitClone stable
+            cd $HIFIBASEDIR/build
 
-        RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+            RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
 
 
-
-    source scl_source enable devtoolset-4
     make domain-server && make assignment-client
 
     cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
@@ -103,34 +103,32 @@ function installHifi() {
     systemctl enable assignment-client.service
     systemctl start assignment-client.service
 
-
-
 }
 
 
 
 function firewalldSetup() {
 
-yum install firewalld -y
+    yum install firewalld -y
 
-systemctl enable firewalld.service
-systemctl start firewalld.service
+    systemctl enable firewalld.service
+    systemctl start firewalld.service
 
-firewall-cmd --permanent --zone=public --add-port=40100/tcp
-firewall-cmd --permanent --zone=public --add-port=40101/tcp
-firewall-cmd --permanent --zone=public --add-port=40102/tcp
-firewall-cmd --permanent --zone=public --add-port=40103/tcp
-firewall-cmd --permanent --zone=public --add-port=40104/tcp
-firewall-cmd --permanent --zone=public --add-port=40105/tcp
+    firewall-cmd --permanent --zone=public --add-port=40100/tcp
+    firewall-cmd --permanent --zone=public --add-port=40101/tcp
+    firewall-cmd --permanent --zone=public --add-port=40102/tcp
+    firewall-cmd --permanent --zone=public --add-port=40103/tcp
+    firewall-cmd --permanent --zone=public --add-port=40104/tcp
+    firewall-cmd --permanent --zone=public --add-port=40105/tcp
 
-firewall-cmd --permanent --zone=public --add-port=40100/udp
-firewall-cmd --permanent --zone=public --add-port=40101/udp
-firewall-cmd --permanent --zone=public --add-port=40102/udp
-firewall-cmd --permanent --zone=public --add-port=40103/udp
-firewall-cmd --permanent --zone=public --add-port=40104/udp
-firewall-cmd --permanent --zone=public --add-port=40105/udp
+    firewall-cmd --permanent --zone=public --add-port=40100/udp
+    firewall-cmd --permanent --zone=public --add-port=40101/udp
+    firewall-cmd --permanent --zone=public --add-port=40102/udp
+    firewall-cmd --permanent --zone=public --add-port=40103/udp
+    firewall-cmd --permanent --zone=public --add-port=40104/udp
+    firewall-cmd --permanent --zone=public --add-port=40105/udp
 
-systemctl restart firewalld.service
+    systemctl restart firewalld.service
 
 }
 
