@@ -53,12 +53,12 @@ function doSave() { #TODO: probably should figure out where the entities are sto
             tar -zcvf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live .
             echo "#### SOURCE SAVED ####"
             sleep 2
-            tar -zcvf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C /home/hifi/.local/share/High\ Fidelity .
+            tar -zcvf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C "/home/hifi/.local/share/High Fidelity" .
             echo "#### SERVER SAVED ####"
             sleep 2
         else
             tar -zcf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live .
-            tar -zcf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C /home/hifi/.local/share/High\ Fidelity .
+            tar -zcf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C "/home/hifi/.local/share/High Fidelity" .
     fi
 
     tar -cf $HIFIBASEDIR/backup/backups/BACKUP_$STAMP.tar -C $HIFIBASEDIR/backup/temp .
@@ -169,8 +169,8 @@ function doRestore() {
     if doContinue $1;
         then
             stopHifi
-            rm -rf /home/hifi/.local/share/High\ Fidelity/*
-            tar -zxvf $RESTOREFILEPATH/SERVER.tar.gz -C /home/hifi/.local/share/High\ Fidelity
+            rm -rf "/home/hifi/.local/share/High Fidelity"/*
+            tar -zxvf $RESTOREFILEPATH/SERVER.tar.gz -C "/home/hifi/.local/share/High Fidelity"
             echo "Restored"
             startHifi
         else
@@ -258,17 +258,18 @@ function releaseSource() {
 
     read -p "Source [ dev | prod ]: " RELEASE_SOURCE
     echo "Using: " $RELEASE_SOURCE
-    sleep 1
 
     if [[ $RELEASE_SOURCE =~ ^([Dd][Ee][Vv])$ ]]
         then
             echo "PRODUCTION=false" > $HIFIBASEDIR/env.conf
             restartHifi
+            echo "SUCCESS"
 
     elif [[ $RELEASE_SOURCE =~ ^([Pp][Rr][Oo][Dd])$ ]]
         then
             echo "PRODUCTION=true" > $HIFIBASEDIR/env.conf
             restartHifi
+            echo "SUCCESS"
 
     else
             echo "Not a valid option"
