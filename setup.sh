@@ -38,10 +38,6 @@ function installHifiServer() {
     cp $HIFIBASEDIR/hifi-server/setup/hifi /usr/local/bin/hifi
 
     chmod 755 /usr/local/bin/hifi
-    if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
-    then
-        sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' /usr/local/bin/hifi
-    fi
 
 }
 
@@ -61,7 +57,7 @@ function installHifi() {
     mkdir -p $HIFIBASEDIR/live
     mkdir -p $HIFIBASEDIR/build
     mkdir -p $HIFIBASEDIR/source
-    mkdir -p $HIFIBASEDIR/backups
+    mkdir -p $HIFIBASEDIR/backup $HIFIBASEDIR/backup/backups $HIFIBASEDIR/backups/temp
     mkdir -p $HIFIBASEDIR/logs
 
     LATEST=""
@@ -81,12 +77,14 @@ function installHifi() {
             echo "#### DEV ####"
             gitClone master
             cd $HIFIBASEDIR/build
+            echo "HIFI_PRODUCTION=false" > $HIFIBASEDIR/env.conf
 
-            cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
+            RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
         else
             echo "#### PRODUCTION ####"
             gitClone stable
             cd $HIFIBASEDIR/build
+            echo "HIFI_PRODUCTION=true" > $HIFIBASEDIR/env.conf
 
             RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi

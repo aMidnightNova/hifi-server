@@ -13,6 +13,7 @@ User=hifi
 Group=hifi
 Environment=PATH=/usr/bin/:/usr/local/bin/
 WorkingDirectory=/opt/hifi/live
+EnvironmentFile=/opt/hifi/env.conf
 
 [Install]
 WantedBy=multi-user.target

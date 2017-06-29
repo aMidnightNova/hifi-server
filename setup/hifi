@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PRODUCTION=true
+PRODUCTION=$HIFI_PRODUCTION
 
 HIFIBASEDIR="/opt/hifi"
 
@@ -30,15 +30,16 @@ function setPerms()  {
 }
 
 function getHelp() {
-    echo " --save : Creates a backup of the live codebase"
-    echo " --status : give status info on the hifi.service"
-    echo " --update : Creates a backup of the current live folder then updates the code."
-    echo " --update-hifi-server : Updates this build tool."
-    echo " --restore : Restore code from one of the last backups."
-    echo " --stop : stops Hifi."
-    echo " --start : Starts Hifi."
-    echo " --restart : Restarts Hifi."
-    echo " --update-by-tag : Choose tag name to build."
+    echo " --save                 : Creates a backup of the live codebase."
+    echo " --status               : give status info on the hifi services."
+    echo " --update               : Creates a backup of the current live folder then updates the code."
+    echo " --update-hifi-server   : Updates this build tool."
+    echo " --restore              : Restore code from one of the last backups."
+    echo " --stop                 : stops Hifi."
+    echo " --start                : Starts Hifi."
+    echo " --restart              : Restarts Hifi."
+    echo " --update-by-tag        : Choose tag name to build."
+    echo " --release-source       : change between dev and production mode."
 }
 
 function doSave() { #TODO: probably should figure out where the entities are stored and back them up as well.
@@ -47,12 +48,22 @@ function doSave() { #TODO: probably should figure out where the entities are sto
 
     if [ "$1" == "verbose" ]
         then
-            tar -zcvf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live .
+            tar -zcvf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live .
+            echo "#### SOURCE SAVED ####"
+            sleep 2
+            tar -zcvf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C /home/hifi/.local/share/High\ Fidelity .
+            echo "#### SERVER SAVED ####"
+            sleep 2
         else
-            tar -zcf $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz -C $HIFIBASEDIR/live .
+            tar -zcf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live .
+            tar -zcf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C /home/hifi/.local/share/High\ Fidelity .
     fi
 
-    echo "saved IN $HIFIBASEDIR/backups/BACKUP_$STAMP.tar.gz ON `date`"
+    tar -cf $HIFIBASEDIR/backup/backups/BACKUP_$STAMP.tar -C $HIFIBASEDIR/backup/temp .
+
+    rm -rf $HIFIBASEDIR/backup/temp/*
+
+    echo "saved IN $HIFIBASEDIR/backup/backups/BACKUP_$STAMP.tar ON `date`"
 }
 
 function getStatus() {
@@ -65,7 +76,7 @@ function doUpdate() {
     if doContinue $1;
         then
             doSave verbose
-            stopHifi
+
             cd $HIFIBASEDIR/source
 
             if $PRODUCTION;
@@ -89,10 +100,12 @@ function doUpdate() {
                 then
                     RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
                 else
-                    cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+                    RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
             fi
 
             make domain-server && make assignment-client
+
+            stopHifi
 
             rm -rf $HIFIBASEDIR/live/*
 
@@ -122,42 +135,47 @@ function updateHifiServer() {
 
     chmod 755 /usr/local/bin/hifi
 
-    cd $HIFIBASEDIR/source
-
-
-    if [ $(git rev-parse --abbrev-ref HEAD) == "master" ]
-        then
-            sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' /usr/local/bin/hifi
-    fi
-    if [ $(git rev-parse --abbrev-ref HEAD) == "stable" ]
-        then
-            sed -i '0,/PRODUCTION=false/s//PRODUCTION=true/' /usr/local/bin/hifi
-    fi
-
 }
 
 function doRestore() {
 
     echo "Listing backup files:"
 
-    find /opt/hifi/backups/ -type f -printf "%f\n" | sort
+    find /opt/hifi/backup/backups -type f -printf "%f\n" | sort
 
     read -p "Filename?: " CHOSENFILE
     echo "Using: " $CHOSENFILE
     sleep 1
 
-    RESTOREFILEPATH="$HIFIBASEDIR/backups/$CHOSENFILE"
+    RESTOREFILEPATH="$HIFIBASEDIR/backup/backups/$CHOSENFILE"
 
+    tar -xf $RESTOREFILEPATH -C $HIFIBASEDIR/backup/temp
+
+    echo "Restore Server Code?"
     if doContinue $1;
         then
             stopHifi
             rm -rf $HIFIBASEDIR/live/*
-            tar -zxvf $RESTOREFILEPATH -C $HIFIBASEDIR/live
+            tar -zxvf $RESTOREFILEPATH/SOURCE.tar.gz -C $HIFIBASEDIR/live
             echo "Restored"
             startHifi
         else
             exit
     fi
+
+    echo "Restore assets and location data?"
+    if doContinue $1;
+        then
+            stopHifi
+            rm -rf /home/hifi/.local/share/High\ Fidelity/*
+            tar -zxvf $RESTOREFILEPATH/SERVER.tar.gz -C /home/hifi/.local/share/High\ Fidelity
+            echo "Restored"
+            startHifi
+        else
+            exit
+    fi
+
+    rm -rf $HIFIBASEDIR/backup/temp/*
 }
 
 function startHifi() {
@@ -234,6 +252,27 @@ function updateByTag() {
     fi
 }
 
+function releaseSource() {
+
+    read -p "Source [ dev | prod ]: " RELEASE_SOURCE
+    echo "Using: " $RELEASE_SOURCE
+    sleep 1
+
+    if [[ $RELEASE_SOURCE =~ ^([Dd][Ee][Vv])$ ]]
+        then
+            echo "HIFI_PRODUCTION=false" > $HIFIBASEDIR/env.conf
+            restartHifi
+
+    elif [[ $RELEASE_SOURCE =~ ^([Pp][Rr][Oo][Dd])$ ]]
+        then
+            echo "HIFI_PRODUCTION=true" > $HIFIBASEDIR/env.conf
+            restartHifi
+
+    else
+            echo "Not a valid option"
+    fi
+}
+
 if [ "$2" != "" ];
     then
         echo "Single argument only."
@@ -276,6 +315,9 @@ case $1 in
         ;;
     --update-by-tag)
         updateByTag
+        ;;
+    --release-source)
+        releaseSource
         ;;
     *)
         echo "ERROR: unknown parameter \"$1\""
