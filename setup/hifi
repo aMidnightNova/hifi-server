@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PRODUCTION=$HIFI_PRODUCTION
-
 HIFIBASEDIR="/opt/hifi"
 
 source $HIFIBASEDIR/env.conf
@@ -50,15 +48,15 @@ function doSave() { #TODO: probably should figure out where the entities are sto
 
     if [ "$1" == "verbose" ]
         then
-            tar -zcvf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live .
-            echo "#### SOURCE SAVED ####"
+            tar -zcvf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live/build .
+            echo "#### BUILD SOURCE SAVED ####"
             sleep 2
-            tar -zcvf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C "/home/hifi/.local/share/High Fidelity" .
-            echo "#### SERVER SAVED ####"
+            tar -zcvf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C $HIFIBASEDIR/live/server-files .
+            echo "#### SERVER FILES SAVED ####"
             sleep 2
         else
-            tar -zcf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live .
-            tar -zcf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C "/home/hifi/.local/share/High Fidelity" .
+            tar -zcf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live/build .
+            tar -zcf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C $HIFIBASEDIR/live/server-files .
     fi
 
     tar -cf $HIFIBASEDIR/backup/backups/BACKUP_$STAMP.tar -C $HIFIBASEDIR/backup/temp .
@@ -109,9 +107,9 @@ function doUpdate() {
 
             stopHifi
 
-            rm -rf $HIFIBASEDIR/live/*
+            rm -rf $HIFIBASEDIR/live/build/*
 
-            cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
+            cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live/build
 
             setPerms
             startHifi
@@ -157,24 +155,24 @@ function doRestore() {
     if doContinue $1;
         then
             stopHifi
-            rm -rf $HIFIBASEDIR/live/*
-            tar -zxvf $RESTOREFILEPATH/SOURCE.tar.gz -C $HIFIBASEDIR/live
+            rm -rf $HIFIBASEDIR/live/build/*
+            tar -zxvf $RESTOREFILEPATH/SOURCE.tar.gz -C $HIFIBASEDIR/live/build
             echo "Restored"
             startHifi
         else
-            exit
+            echo "Skipping..."
     fi
 
     echo "Restore assets and location data?"
     if doContinue $1;
         then
             stopHifi
-            rm -rf "/home/hifi/.local/share/High Fidelity"/*
-            tar -zxvf $RESTOREFILEPATH/SERVER.tar.gz -C "/home/hifi/.local/share/High Fidelity"
+            rm -rf $HIFIBASEDIR/live/server-files/*
+            tar -zxvf $RESTOREFILEPATH/SERVER.tar.gz -C $HIFIBASEDIR/live/server-files
             echo "Restored"
             startHifi
         else
-            exit
+            echo "Skipping..."
     fi
 
     rm -rf $HIFIBASEDIR/backup/temp/*
@@ -243,9 +241,9 @@ function updateByTag() {
 
             make domain-server && make assignment-client
 
-            rm -rf $HIFIBASEDIR/live/*
+            rm -rf $HIFIBASEDIR/live/build/*
 
-            cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
+            cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live/build
 
             setPerms
             startHifi
@@ -261,13 +259,27 @@ function releaseSource() {
 
     if [[ $RELEASE_SOURCE =~ ^([Dd][Ee][Vv])$ ]]
         then
-            echo "PRODUCTION=false" > $HIFIBASEDIR/env.conf
+
+            if $PRODUCTION;
+                then
+                    sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' $HIFIBASEDIR/env.conf
+                else
+                    echo "already dev mode"
+            fi
+
             restartHifi
             echo "SUCCESS"
 
     elif [[ $RELEASE_SOURCE =~ ^([Pp][Rr][Oo][Dd])$ ]]
         then
-            echo "PRODUCTION=true" > $HIFIBASEDIR/env.conf
+
+            if $PRODUCTION;
+                then
+                    echo "already prod mode"
+                else
+                    sed -i '0,/PRODUCTION=false/s//PRODUCTION=true/' $HIFIBASEDIR/env.conf
+            fi
+
             restartHifi
             echo "SUCCESS"
 

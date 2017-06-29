@@ -3,7 +3,7 @@ Description=Hifi
 After=network.target domain-server.service
 
 [Service]
-ExecStart=/opt/hifi/live/assignment-client/assignment-client --min 6 --max 20
+ExecStart=/opt/hifi/live/build/assignment-client/assignment-client --min 6 --max 20
 Restart=always
 RestartSec=10
 StandardOutput=syslog
@@ -12,7 +12,7 @@ SyslogIdentifier=hifi-assignment-client
 User=hifi
 Group=hifi
 Environment=PATH=/usr/bin/:/usr/local/bin/
-WorkingDirectory=/opt/hifi/live
+WorkingDirectory=/opt/hifi/live/build
 
 [Install]
 WantedBy=multi-user.target

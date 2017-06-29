@@ -39,6 +39,8 @@ function installHifiServer() {
 
     chmod 755 /usr/local/bin/hifi
 
+    VERSIONTEMP=$(echo $LATEST | cut -d'-' -f1)
+    echo "HIFI_SERVER_VERSION=$(echo $VERSIONTEMP | cut -d'v' -f2)" > $HIFIBASEDIR/env.conf
 }
 
 
@@ -54,7 +56,7 @@ function installHifi() {
     }
 
 
-    mkdir -p $HIFIBASEDIR/live
+    mkdir -p $HIFIBASEDIR/live $HIFIBASEDIR/live/build $HIFIBASEDIR/live/server-files
     mkdir -p $HIFIBASEDIR/build
     mkdir -p $HIFIBASEDIR/source
     mkdir -p $HIFIBASEDIR/backup $HIFIBASEDIR/backup/backups $HIFIBASEDIR/backups/temp
@@ -77,14 +79,14 @@ function installHifi() {
             echo "#### DEV ####"
             gitClone master
             cd $HIFIBASEDIR/build
-            echo "PRODUCTION=false" > $HIFIBASEDIR/env.conf
+            echo "PRODUCTION=false" >> $HIFIBASEDIR/env.conf
 
             RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
         else
             echo "#### PRODUCTION ####"
             gitClone stable
             cd $HIFIBASEDIR/build
-            echo "PRODUCTION=true" > $HIFIBASEDIR/env.conf
+            echo "PRODUCTION=true" >> $HIFIBASEDIR/env.conf
 
             RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
@@ -92,13 +94,32 @@ function installHifi() {
 
     make domain-server && make assignment-client
 
-    cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live
+    cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live/build
 
     setPerms
 
     systemctl enable domain-server.service
     systemctl start domain-server.service
     systemctl enable assignment-client.service
+    systemctl start assignment-client.service
+
+    sleep 2
+
+    systemctl stop domain-server.service
+    systemctl stop assignment-client.service
+
+
+    if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
+        then
+            mv /home/hifi/.local/share/High\ Fidelity\ -\ dev/* $HIFIBASEDIR/live/server-files
+        else
+            mv /home/hifi/.local/share/High\ Fidelity/* $HIFIBASEDIR/live/server-files
+    fi
+
+    ln -s $HIFIBASEDIR/live/server-files /home/hifi/.local/share/High\ Fidelity\ -\ dev
+    ln -s $HIFIBASEDIR/live/server-files /home/hifi/.local/share/High\ Fidelity
+
+    systemctl start domain-server.service
     systemctl start assignment-client.service
 
 }

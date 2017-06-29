@@ -3,7 +3,7 @@ Description=Hifi
 After=network.target
 
 [Service]
-ExecStart=/opt/hifi/live/domain-server/domain-server
+ExecStart=/opt/hifi/live/build/domain-server/domain-server
 Restart=always
 RestartSec=10
 StandardOutput=syslog
@@ -12,7 +12,7 @@ SyslogIdentifier=hifi-domain-server
 User=hifi
 Group=hifi
 Environment=PATH=/usr/bin/:/usr/local/bin/
-WorkingDirectory=/opt/hifi/live
+WorkingDirectory=/opt/hifi/live/build
 
 [Install]
 WantedBy=multi-user.target
