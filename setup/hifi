@@ -156,7 +156,7 @@ function doRestore() {
         then
             stopHifi
             rm -rf $HIFIBASEDIR/live/build/*
-            tar -zxvf $RESTOREFILEPATH/SOURCE.tar.gz -C $HIFIBASEDIR/live/build
+            tar -zxvf $HIFIBASEDIR/backup/temp/SOURCE.tar.gz -C $HIFIBASEDIR/live/build
             echo "Restored"
             startHifi
         else
@@ -168,7 +168,7 @@ function doRestore() {
         then
             stopHifi
             rm -rf $HIFIBASEDIR/live/server-files/*
-            tar -zxvf $RESTOREFILEPATH/SERVER.tar.gz -C $HIFIBASEDIR/live/server-files
+            tar -zxvf $HIFIBASEDIR/backup/temp/SERVER.tar.gz -C $HIFIBASEDIR/live/server-files
             echo "Restored"
             startHifi
         else

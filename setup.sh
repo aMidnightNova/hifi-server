@@ -59,7 +59,7 @@ function installHifi() {
     mkdir -p $HIFIBASEDIR/live $HIFIBASEDIR/live/build $HIFIBASEDIR/live/server-files
     mkdir -p $HIFIBASEDIR/build
     mkdir -p $HIFIBASEDIR/source
-    mkdir -p $HIFIBASEDIR/backup $HIFIBASEDIR/backup/backups $HIFIBASEDIR/backups/temp
+    mkdir -p $HIFIBASEDIR/backup $HIFIBASEDIR/backup/backups $HIFIBASEDIR/backup/temp
     mkdir -p $HIFIBASEDIR/logs
 
     LATEST=""
@@ -112,8 +112,10 @@ function installHifi() {
     if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
         then
             mv /home/hifi/.local/share/High\ Fidelity\ -\ dev/* $HIFIBASEDIR/live/server-files
+            rm -rf /home/hifi/.local/share/High\ Fidelity\ -\ dev
         else
             mv /home/hifi/.local/share/High\ Fidelity/* $HIFIBASEDIR/live/server-files
+            rm -rf /home/hifi/.local/share/High\ Fidelity
     fi
 
     ln -s $HIFIBASEDIR/live/server-files /home/hifi/.local/share/High\ Fidelity\ -\ dev
