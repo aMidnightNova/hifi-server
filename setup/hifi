@@ -4,6 +4,8 @@ PRODUCTION=$HIFI_PRODUCTION
 
 HIFIBASEDIR="/opt/hifi"
 
+source $HIFIBASEDIR/env.conf
+
 function doContinue() {
 ANS=""
 
@@ -260,12 +262,12 @@ function releaseSource() {
 
     if [[ $RELEASE_SOURCE =~ ^([Dd][Ee][Vv])$ ]]
         then
-            echo "HIFI_PRODUCTION=false" > $HIFIBASEDIR/env.conf
+            echo "PRODUCTION=false" > $HIFIBASEDIR/env.conf
             restartHifi
 
     elif [[ $RELEASE_SOURCE =~ ^([Pp][Rr][Oo][Dd])$ ]]
         then
-            echo "HIFI_PRODUCTION=true" > $HIFIBASEDIR/env.conf
+            echo "PRODUCTION=true" > $HIFIBASEDIR/env.conf
             restartHifi
 
     else

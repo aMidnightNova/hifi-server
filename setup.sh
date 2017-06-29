@@ -77,14 +77,14 @@ function installHifi() {
             echo "#### DEV ####"
             gitClone master
             cd $HIFIBASEDIR/build
-            echo "HIFI_PRODUCTION=false" > $HIFIBASEDIR/env.conf
+            echo "PRODUCTION=false" > $HIFIBASEDIR/env.conf
 
             RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
         else
             echo "#### PRODUCTION ####"
             gitClone stable
             cd $HIFIBASEDIR/build
-            echo "HIFI_PRODUCTION=true" > $HIFIBASEDIR/env.conf
+            echo "PRODUCTION=true" > $HIFIBASEDIR/env.conf
 
             RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
