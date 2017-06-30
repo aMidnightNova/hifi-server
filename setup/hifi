@@ -194,7 +194,7 @@ function restartHifi() {
 }
 
 function trimBackups() {
-    cd $HIFIBASEDIR/backups
+    cd $HIFIBASEDIR/backup/backups
     ls -tr | head -n -10 | xargs -l -r sh -c 'echo Deleting $1 ON `date` && rm $1' --
 }
 
@@ -236,7 +236,7 @@ function updateByTag() {
                 then
                     RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $CHOSENTAG | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
                 else
-                    cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+                    RELEASE_NUMBER=$(echo $CHOSENTAG | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
             fi
 
             make domain-server && make assignment-client
@@ -263,12 +263,12 @@ function releaseSource() {
             if $PRODUCTION;
                 then
                     sed -i '0,/PRODUCTION=true/s//PRODUCTION=false/' $HIFIBASEDIR/env.conf
+                    echo "SUCCESS"
                 else
                     echo "already dev mode"
             fi
 
             restartHifi
-            echo "SUCCESS"
 
     elif [[ $RELEASE_SOURCE =~ ^([Pp][Rr][Oo][Dd])$ ]]
         then
@@ -278,10 +278,10 @@ function releaseSource() {
                     echo "already prod mode"
                 else
                     sed -i '0,/PRODUCTION=false/s//PRODUCTION=true/' $HIFIBASEDIR/env.conf
+                    echo "SUCCESS"
             fi
 
             restartHifi
-            echo "SUCCESS"
 
     else
             echo "Not a valid option"
