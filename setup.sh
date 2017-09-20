@@ -72,6 +72,7 @@ function installHifi() {
 
     }
 
+    export QT_CMAKE_PREFIX_PATH=/usr/lib64/cmake
     source scl_source enable devtoolset-4
 
     if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
