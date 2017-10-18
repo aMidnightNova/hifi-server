@@ -10,17 +10,14 @@ function versionCheck() {
 }
 
 function maybeUpdateHifiServerFiles() {
-echo "test"
-echo $1
-echo $2
-    if versionCheck $1 $2; then
-        echo "red"
 
-        if versionCheck $1 "0.3.1"; then
+    if versionCheck $1 $2; then
+
+        if versionCheck $1 "0.3.2"; then
             echo "QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake" >> $HIFIBASEDIR/env.conf
         fi
 
-        if versionCheck $1 "0.3.2"; then
+        if versionCheck $1 "0.4.0"; then
             cd /opt/
             wget  https://download.qt.io/archive/qt/5.9/5.9.1/single/qt-everywhere-opensource-src-5.9.1.tar.xz
             mkdir /opt/qt-5.9.1
@@ -180,7 +177,8 @@ function updateHifiServer() {
     chmod 755 /usr/local/bin/hifi
 
     VERSIONTEMP=$(echo $LATEST | cut -d'-' -f1)
-    maybeUpdateHifiServerFiles $HIFI_SERVER_VERSION ${VERSIONTEMP:1}
+
+    maybeUpdateHifiServerFiles ${VERSIONTEMP:1} $HIFI_SERVER_VERSION
 }
 
 function doRestore() {
