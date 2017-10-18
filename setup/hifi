@@ -9,42 +9,6 @@ function versionCheck() {
     test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1";
 }
 
-function maybeUpdateHifiServerFiles() {
-
-    if versionCheck $1 $2; then
-
-        if versionCheck $1 "0.3.2"; then
-            echo "QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake" >> $HIFIBASEDIR/env.conf
-        fi
-
-        if versionCheck $1 "0.4.0"; then
-            cd /opt/
-            wget  https://download.qt.io/archive/qt/5.9/5.9.1/single/qt-everywhere-opensource-src-5.9.1.tar.xz
-            mkdir /opt/qt-5.9.1
-            tar xvf qt-everywhere-opensource-src-5.9.1.tar.xz
-            cd qt-everywhere-opensource-src-5.9.1
-            ./configure -opensource -release -prefix /opt/qt-5.9.1
-
-            CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
-            if (( $CPU_CORES > 1 )); then
-                $CPU_CORES = $CPU_CORES - 1;
-            fi
-
-            make -j$CPU_CORES && make install
-
-            cd /opt/
-
-            rm -rf qt-everywhere-opensource-src-5.9.1
-            rm -f qt-everywhere-opensource-src-5.9.1.tar.xz
-            cd -
-            echo "Hifi Server Update Complete"
-        fi
-        sed -i '0,/HIFI_SERVER_VERSION=$1/s//HIFI_SERVER_VERSION=$2/' $HIFIBASEDIR/env.conf
-        echo "Hifi Server Update Complete. Running Version $2"
-    fi
-
-}
-
 function doContinue() {
 ANS=""
 
@@ -176,9 +140,50 @@ function updateHifiServer() {
 
     chmod 755 /usr/local/bin/hifi
 
+    hifi --maybeUpdateHifiServerFiles
+}
+
+function maybeUpdateHifiServerFiles() {
+
+    cd $HIFIBASEDIR/hifi-server
+
+    LATEST=$(git describe --abbrev=0 --tags)
+
     VERSIONTEMP=$(echo $LATEST | cut -d'-' -f1)
 
-    maybeUpdateHifiServerFiles ${VERSIONTEMP:1} $HIFI_SERVER_VERSION
+    cd -
+
+    if versionCheck ${VERSIONTEMP:1} $HIFI_SERVER_VERSION; then
+
+        if versionCheck "0.3.2" $HIFI_SERVER_VERSION; then
+            echo "QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake" >> $HIFIBASEDIR/env.conf
+        fi
+
+        if versionCheck "0.4.0" $HIFI_SERVER_VERSION; then
+            cd /opt/
+            wget  https://download.qt.io/archive/qt/5.9/5.9.1/single/qt-everywhere-opensource-src-5.9.1.tar.xz
+            mkdir /opt/qt-5.9.1
+            tar xvf qt-everywhere-opensource-src-5.9.1.tar.xz
+            cd qt-everywhere-opensource-src-5.9.1
+            ./configure -opensource -release -prefix /opt/qt-5.9.1
+
+            CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
+            if (( $CPU_CORES > 1 )); then
+                $CPU_CORES = $CPU_CORES - 1;
+            fi
+
+            make -j$CPU_CORES && make install
+
+            cd /opt/
+
+            rm -rf qt-everywhere-opensource-src-5.9.1
+            rm -f qt-everywhere-opensource-src-5.9.1.tar.xz
+            cd -
+        fi
+        sed -i "0,/HIFI_SERVER_VERSION=$HIFI_SERVER_VERSION/s//HIFI_SERVER_VERSION=${VERSIONTEMP:1}/" $HIFIBASEDIR/env.conf
+        echo "Hifi Server Update Complete. Running Version ${VERSIONTEMP:1}"
+    fi
+
 }
 
 function doRestore() {
@@ -353,6 +358,9 @@ case $1 in
         ;;
     --update-hifi-server)
         updateHifiServer
+        ;;
+    --maybeUpdateHifiServerFiles)
+        maybeUpdateHifiServerFiles #not listed in help
         ;;
     --restore)
         doRestore
