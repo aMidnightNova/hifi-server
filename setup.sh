@@ -21,7 +21,7 @@ yum update -y
 yum install -y epel-release centos-release-scl
 
 yum groupinstall -y --enablerepo=epel "development tools"
-yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt* devtoolset-4-gcc-c++
+yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt* devtoolset-4-gcc-c++ wget
 
 
 function installHifiServer() {
@@ -40,9 +40,33 @@ function installHifiServer() {
     chmod 755 /usr/local/bin/hifi
 
     VERSIONTEMP=$(echo $LATEST | cut -d'-' -f1)
-    echo "HIFI_SERVER_VERSION=$(echo $VERSIONTEMP | cut -d'v' -f2)" > $HIFIBASEDIR/env.conf
+    echo "HIFI_SERVER_VERSION=${VERSIONTEMP:1}" > $HIFIBASEDIR/env.conf
 }
 
+
+function getQt() {
+    cd /opt/
+    wget  https://download.qt.io/archive/qt/5.9/5.9.1/single/qt-everywhere-opensource-src-5.9.1.tar.xz
+    mkdir /opt/qt-5.9.1
+    tar xvf qt-everywhere-opensource-src-5.9.1.tar.xz
+    cd qt-everywhere-opensource-src-5.9.1
+    ./configure -opensource -release -prefix /opt/qt-5.9.1
+
+    CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
+    if (( $CPU_CORES > 1 )); then
+        $CPU_CORES = $CPU_CORES - 1;
+    fi
+
+    make -j$CPU_CORES && make install
+
+    cd /opt/
+
+    rm -rf qt-everywhere-opensource-src-5.9.1
+    rm -f qt-everywhere-opensource-src-5.9.1.tar.xz
+
+
+
+}
 
 function installHifi() {
     id -u hifi &>/dev/null || useradd hifi
@@ -72,7 +96,6 @@ function installHifi() {
 
     }
 
-    export QT_CMAKE_PREFIX_PATH=/usr/lib64/cmake
     source scl_source enable devtoolset-4
 
     if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
@@ -91,7 +114,7 @@ function installHifi() {
 
             RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
-
+    echo "QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake" >> $HIFIBASEDIR/env.conf
 
     make domain-server && make assignment-client
 
@@ -157,6 +180,8 @@ function firewalldSetup() {
 firewalldSetup
 
 installHifiServer
+
+getQt
 
 installHifi
 

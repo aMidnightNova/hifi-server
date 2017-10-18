@@ -4,6 +4,47 @@ HIFIBASEDIR="/opt/hifi"
 
 source $HIFIBASEDIR/env.conf
 
+
+function versionCheck() {
+    test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1";
+}
+
+function maybeUpdateHifiServerFiles() {
+    if versionCheck $1 $2; then
+        echo "red"
+
+        if versionCheck $1 "0.3.1"; then
+            echo "QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake" >> $HIFIBASEDIR/env.conf
+        fi
+
+        if versionCheck $1 "0.3.2"; then
+            cd /opt/
+            wget  https://download.qt.io/archive/qt/5.9/5.9.1/single/qt-everywhere-opensource-src-5.9.1.tar.xz
+            mkdir /opt/qt-5.9.1
+            tar xvf qt-everywhere-opensource-src-5.9.1.tar.xz
+            cd qt-everywhere-opensource-src-5.9.1
+            ./configure -opensource -release -prefix /opt/qt-5.9.1
+
+            CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
+            if (( $CPU_CORES > 1 )); then
+                $CPU_CORES = $CPU_CORES - 1;
+            fi
+
+            make -j$CPU_CORES && make install
+
+            cd /opt/
+
+            rm -rf qt-everywhere-opensource-src-5.9.1
+            rm -f qt-everywhere-opensource-src-5.9.1.tar.xz
+            cd -
+            echo "Hifi Server Update Complete"
+        fi
+        sed -i '0,/HIFI_SERVER_VERSION=$1/s//HIFI_SERVER_VERSION=$2/' $HIFIBASEDIR/env.conf
+        echo "Hifi Server Update Complete. Running Version $2"
+    fi
+
+}
+
 function doContinue() {
 ANS=""
 
@@ -94,7 +135,6 @@ function doUpdate() {
 
             cd $HIFIBASEDIR/build
 
-            export QT_CMAKE_PREFIX_PATH=/usr/lib64/cmake
             source scl_source enable devtoolset-4
 
             if $PRODUCTION;
@@ -136,6 +176,8 @@ function updateHifiServer() {
 
     chmod 755 /usr/local/bin/hifi
 
+    VERSIONTEMP=$(echo $LATEST | cut -d'-' -f1)
+    maybeUpdateHifiServerFiles $HIFI_SERVER_VERSION ${VERSIONTEMP:1}
 }
 
 function doRestore() {
@@ -231,7 +273,6 @@ function updateByTag() {
 
             cd $HIFIBASEDIR/build
 
-            export QT_CMAKE_PREFIX_PATH=/usr/lib64/cmake
             source scl_source enable devtoolset-4
 
             if $PRODUCTION;
