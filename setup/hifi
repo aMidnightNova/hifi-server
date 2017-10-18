@@ -10,6 +10,9 @@ function versionCheck() {
 }
 
 function maybeUpdateHifiServerFiles() {
+echo "test"
+echo $1
+echo $2
     if versionCheck $1 $2; then
         echo "red"
 
