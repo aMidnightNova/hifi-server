@@ -50,7 +50,7 @@ function getQt() {
     mkdir /opt/qt-5.9.1
     tar xvf qt-everywhere-opensource-src-5.9.1.tar.xz
     cd qt-everywhere-opensource-src-5.9.1
-    ./configure -opensource -release -prefix /opt/qt-5.9.1
+    ./configure -confirm-license -opensource -release -prefix /opt/qt-5.9.1
 
     CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
     if (( $CPU_CORES > 1 )); then

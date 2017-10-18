@@ -165,7 +165,7 @@ function maybeUpdateHifiServerFiles() {
             mkdir /opt/qt-5.9.1
             tar xvf qt-everywhere-opensource-src-5.9.1.tar.xz
             cd qt-everywhere-opensource-src-5.9.1
-            ./configure -opensource -release -prefix /opt/qt-5.9.1
+            ./configure -confirm-license -opensource -release -prefix /opt/qt-5.9.1
 
             CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
             if (( $CPU_CORES > 1 )); then
@@ -178,7 +178,7 @@ function maybeUpdateHifiServerFiles() {
 
             rm -rf qt-everywhere-opensource-src-5.9.1
             rm -f qt-everywhere-opensource-src-5.9.1.tar.xz
-            cd -
+
         fi
         sed -i "0,/HIFI_SERVER_VERSION=$HIFI_SERVER_VERSION/s//HIFI_SERVER_VERSION=${VERSIONTEMP:1}/" $HIFIBASEDIR/env.conf
         echo "Hifi Server Update Complete. Running Version ${VERSIONTEMP:1}"
