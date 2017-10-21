@@ -183,6 +183,9 @@ installHifiServer
 
 getQt
 
+source $HIFIBASEDIR/env.conf
+export QT_CMAKE_PREFIX_PATH=$QT_CMAKE_PREFIX_PATH
+
 installHifi
 
 #this helps me gauge community interest, without it I have no idea how many are using it or if I should continue to update it.
