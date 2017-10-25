@@ -16,6 +16,10 @@ if [ -d $HIFIBASEDIR ]; then
     exit
 fi
 
+CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
+if (( $CPU_CORES > 1 )); then
+    $CPU_CORES = $CPU_CORES - 1;
+fi
 
 yum update -y
 yum install -y epel-release centos-release-scl
@@ -51,11 +55,6 @@ function getQt() {
     tar xvf qt-everywhere-opensource-src-5.9.1.tar.xz
     cd qt-everywhere-opensource-src-5.9.1
     ./configure -confirm-license -opensource -release -prefix /opt/qt-5.9.1
-
-    CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
-    if (( $CPU_CORES > 1 )); then
-        $CPU_CORES = $CPU_CORES - 1;
-    fi
 
     make -j$CPU_CORES && make install
 
@@ -117,7 +116,7 @@ function installHifi() {
 
     echo "QT_CMAKE_PREFIX_PATH=$QT_CMAKE_PREFIX_PATH" >> $HIFIBASEDIR/env.conf
 
-    make domain-server && make assignment-client
+    make -j$CPU_CORES domain-server && make -j$CPU_CORES assignment-client
 
     cp -R $HIFIBASEDIR/build/* $HIFIBASEDIR/live/build
 
