@@ -3,7 +3,7 @@
 DEPLOYDEV="$1"
 
 HIFIBASEDIR="/opt/hifi"
-
+export QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake
 
 if (( $EUID != 0 )); then
     echo "Please run as root"
@@ -115,7 +115,6 @@ function installHifi() {
             RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
 
-    export QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake
     echo "QT_CMAKE_PREFIX_PATH=$QT_CMAKE_PREFIX_PATH" >> $HIFIBASEDIR/env.conf
 
     make domain-server && make assignment-client
