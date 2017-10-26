@@ -16,10 +16,11 @@ if [ -d $HIFIBASEDIR ]; then
     exit
 fi
 
-CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
+CPU_CORES=$(grep -i processor /proc/cpuinfo | wc -l)
 if (( $CPU_CORES > 1 )); then
-    $CPU_CORES = $CPU_CORES - 1;
+    CPU_CORES=$(($CPU_CORES - 1));
 fi
+
 
 yum update -y
 yum install -y epel-release centos-release-scl

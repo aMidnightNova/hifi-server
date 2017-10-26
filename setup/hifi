@@ -6,9 +6,9 @@ source $HIFIBASEDIR/env.conf
 
 export QT_CMAKE_PREFIX_PATH=$QT_CMAKE_PREFIX_PATH
 
-CPU_CORES=`grep -i processor /proc/cpuinfo | wc -l`
+CPU_CORES=$(grep -i processor /proc/cpuinfo | wc -l)
 if (( $CPU_CORES > 1 )); then
-    $CPU_CORES = $CPU_CORES - 1;
+    CPU_CORES=$(($CPU_CORES - 1));
 fi
 
 function versionCheck() {
