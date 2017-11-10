@@ -109,9 +109,10 @@ function doUpdate() {
 
             if $PRODUCTION;
                 then
-                    RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+                    BRANCH=stable BUILD_BRANCH=stable RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) \
+                    cmake3 -DSERVER_ONLY=TRUE -DCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
                 else
-                    RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+                    RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE $HIFIBASEDIR/source
             fi
 
             make -j$CPU_CORES domain-server && make -j$CPU_CORES assignment-client

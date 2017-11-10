@@ -112,7 +112,8 @@ function installHifi() {
             cd $HIFIBASEDIR/build
             echo "PRODUCTION=true" >> $HIFIBASEDIR/env.conf
 
-            RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) cmake3 -DSERVER_ONLY=TRUE -DDCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
+            BRANCH=stable BUILD_BRANCH=stable RELEASE_TYPE=PRODUCTION RELEASE_NUMBER=$(echo $LATEST | cut -d'-' -f2) \
+            cmake3 -DSERVER_ONLY=TRUE -DCMAKE_BUILD_TYPE=Release $HIFIBASEDIR/source
     fi
 
     echo "QT_CMAKE_PREFIX_PATH=$QT_CMAKE_PREFIX_PATH" >> $HIFIBASEDIR/env.conf
