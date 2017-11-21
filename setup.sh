@@ -26,7 +26,7 @@ yum update -y
 yum install -y epel-release centos-release-scl
 
 yum groupinstall -y --enablerepo=epel "development tools"
-yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt* devtoolset-4-gcc-c++ wget
+yum install -y openssl-devel cmake3 glew-devel git wget libXmu-* libXi-devel libXrandr libXrandr-devel qt5-qt* devtoolset-7-gcc devtoolset-7-gcc-c++ wget
 
 
 function installHifiServer() {
@@ -96,7 +96,7 @@ function installHifi() {
 
     }
 
-    source scl_source enable devtoolset-4
+    source scl_source enable devtoolset-7
 
     if [[ $DEPLOYDEV =~ ^([Dd][Ee][Vv]|[Dd])$ ]]
         then

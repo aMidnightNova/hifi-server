@@ -105,7 +105,7 @@ function doUpdate() {
 
             cd $HIFIBASEDIR/build
 
-            source scl_source enable devtoolset-4
+            source scl_source enable devtoolset-7
 
             if $PRODUCTION;
                 then
@@ -161,7 +161,7 @@ function maybeUpdateHifiServerFiles() {
     cd -
 
     if versionCheck ${VERSIONTEMP:1} $HIFI_SERVER_VERSION; then
-
+        #Higher version first
         if versionCheck "0.3.2" $HIFI_SERVER_VERSION; then
             echo "QT_CMAKE_PREFIX_PATH=/opt/qt-5.9.1/lib/cmake" >> $HIFIBASEDIR/env.conf
         fi
@@ -181,6 +181,10 @@ function maybeUpdateHifiServerFiles() {
             rm -rf qt-everywhere-opensource-src-5.9.1
             rm -f qt-everywhere-opensource-src-5.9.1.tar.xz
 
+        fi
+
+        if versionCheck "0.4.4" $HIFI_SERVER_VERSION; then
+            yum install -y yum install devtoolset-7-gcc devtoolset-7-gcc-c++
         fi
         sed -i "0,/HIFI_SERVER_VERSION=$HIFI_SERVER_VERSION/s//HIFI_SERVER_VERSION=${VERSIONTEMP:1}/" $HIFIBASEDIR/env.conf
         echo "Hifi Server Update Complete. Running Version ${VERSIONTEMP:1}"
@@ -281,7 +285,7 @@ function updateByTag() {
 
             cd $HIFIBASEDIR/build
 
-            source scl_source enable devtoolset-4
+            source scl_source enable devtoolset-7
 
             if $PRODUCTION;
                 then
