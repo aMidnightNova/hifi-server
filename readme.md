@@ -1,3 +1,6 @@
+
+-> #NOTICE - This projuect is not currently maintained. <-
+
 # Installation
 
 Run as root
