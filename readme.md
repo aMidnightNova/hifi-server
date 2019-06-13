@@ -1,5 +1,5 @@
 
--> #NOTICE - This projuect is not currently maintained. <-
+# NOTICE - This projuect is not currently maintained.
 
 # Installation
 
